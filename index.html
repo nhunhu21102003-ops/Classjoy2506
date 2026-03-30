@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassJoy - Student Manager</title>
+    <title>ClassJoy Pink - Cute Student Manager</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
         <section id="auth-screen" class="container">
-            <h1 style="color: #ffb7ce;">Teacher Login</h1>
-            <div class="card">
+            <h1 style="color: #ff8fb1; text-shadow: 2px 2px 0px #fff;">Teacher Login 🎀</h1>
+            <div class="card auth-card">
                 <input type="text" id="username" placeholder="Username">
                 <input type="password" id="password" placeholder="Password">
-                <button id="login-btn">Enter Classroom</button>
+                <button id="login-btn">Enter Classroom 💖</button>
             </div>
         </section>
 
         <section id="dashboard-screen" class="container hidden">
             <header>
-                <h2>Teacher's Dashboard</h2>
-                <button class="btn-danger" id="logout-btn">Logout</button>
+                <h2>My Classes 🏫</h2>
+                <button class="btn-secondary" id="logout-btn">Logout 🚪</button>
             </header>
             
-            <div class="controls">
-                <input type="text" id="new-class-name" placeholder="Class Name (e.g. 10A1)">
+            <div class="controls card">
+                <input type="text" id="new-class-name" placeholder="Class Name (e.g. 1A)">
                 <button id="add-class-btn">+ Create Class</button>
             </div>
 
@@ -36,7 +36,7 @@
             <header>
                 <button id="back-btn">← Back</button>
                 <h2 id="current-class-title">Class Name</h2>
-                <button class="btn-danger" id="delete-class-btn">Delete Class</button>
+                <button class="btn-danger" id="delete-class-btn">Delete Class 🗑️</button>
             </header>
 
             <div class="settings-bar card">
@@ -44,9 +44,9 @@
                 <input type="number" id="max-points-input" value="10">
             </div>
 
-            <div class="controls">
+            <div class="controls card">
                 <input type="text" id="new-student-name" placeholder="Student Name">
-                <button id="add-student-btn">Add Student</button>
+                <button id="add-student-btn">Add Student 👤</button>
             </div>
 
             <div id="student-list" class="grid"></div>
