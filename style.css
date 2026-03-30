@@ -10,59 +10,43 @@
 body, html { height: 100%; margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg); overflow: hidden; }
 .hidden { display: none !important; }
 
-/* Auth */
-.auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg); }
-.auth-box { width: 300px; padding: 40px; text-align: center; background: white; border-radius: 30px; border: 4px solid var(--sidebar-bg); }
+/* Auth Screen */
+.auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
+.auth-box { width: 300px; padding: 40px; text-align: center; background: white; border-radius: 30px; border: 4px solid var(--sidebar-bg); box-shadow: 0 10px 0px var(--shadow); }
+.main-title { color: var(--pink-hot); text-shadow: 2px 2px 0px #fff; font-size: 2.5rem; margin: 0; }
 
-/* Layout chính */
+/* Layout App */
 #app-layout { display: flex; height: 100vh; width: 100vw; }
 
-/* SIDEBAR */
 .sidebar {
     width: 260px; background: var(--sidebar-bg); color: white;
     display: flex; flex-direction: column; padding: 20px;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 10;
 }
 
 .sidebar-header { text-align: center; padding-bottom: 20px; border-bottom: 2px dashed rgba(255,255,255,0.5); margin-bottom: 20px; }
-.user-avatar { font-size: 3rem; margin-bottom: 10px; }
-.user-name { font-weight: 700; font-size: 1.1rem; word-break: break-word; }
+.user-avatar { font-size: 3rem; }
+.user-name { font-weight: 700; margin-top: 10px; }
 
 .sidebar-nav { flex: 1; overflow-y: auto; }
-.nav-label { font-size: 0.8rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; opacity: 0.9; }
+.nav-item { background: rgba(255,255,255,0.2); margin-bottom: 10px; padding: 12px; border-radius: 15px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+.nav-item.active { background: white; color: var(--pink-hot); }
 
-/* Item lớp học trong sidebar */
-.nav-item {
-    background: rgba(255,255,255,0.2); margin-bottom: 10px; padding: 12px 15px;
-    border-radius: 15px; cursor: pointer; transition: 0.2s; font-weight: 600;
-}
-.nav-item:hover { background: rgba(255,255,255,0.4); transform: translateX(5px); }
-.nav-item.active { background: white; color: var(--pink-hot); box-shadow: 0 4px 0px var(--shadow); }
+.btn-logout-sidebar { background: var(--pink-dark); color: white; border: none; padding: 12px; border-radius: 15px; cursor: pointer; font-weight: 700; }
 
-.btn-logout-sidebar {
-    background: var(--pink-dark); color: white; border: none; padding: 12px;
-    border-radius: 15px; cursor: pointer; font-weight: 700; margin-top: 20px;
-}
-
-/* MAIN CONTENT */
 .main-content { flex: 1; padding: 40px; overflow-y: auto; }
 .card-heavy { background: white; padding: 20px; border-radius: 20px; border: 4px solid var(--sidebar-bg); margin-bottom: 25px; box-shadow: 0 8px 0px var(--shadow); }
 
-/* Buttons & Inputs */
-input { padding: 12px; border: 3px solid var(--bg); border-radius: 15px; outline: none; font-family: inherit; font-weight: 700; }
-button { padding: 12px 20px; border: none; border-radius: 50px; background: var(--pink-hot); color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #b33652; transition: 0.2s; }
+input { padding: 10px; border: 3px solid var(--bg); border-radius: 12px; font-family: inherit; font-weight: bold; outline: none; }
+button { padding: 10px 20px; border: none; border-radius: 50px; background: var(--pink-hot); color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #b33652; }
 button:active { transform: translateY(3px); box-shadow: none; }
 
-/* Student Grid */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-.student-card { background: white; padding: 20px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; position: relative; }
+.student-card { background: white; padding: 20px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; }
 .animal-icon { font-size: 3rem; animation: bounce 2s infinite ease-in-out; display: inline-block; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-/* Cụm nút bấm điểm */
 .point-controls { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
-.btn-plus { background: #ff1493 !important; width: 60px; font-size: 1.5rem; }
-.btn-minus { background: #ff4d4d !important; width: 60px; font-size: 1.5rem; }
+.btn-plus { background: #ff1493 !important; width: 55px; font-size: 1.2rem; }
+.btn-minus { background: #ff4d4d !important; width: 55px; font-size: 1.2rem; }
 
-.rank-tag { font-size: 0.7rem; font-weight: 900; padding: 4px 10px; border-radius: 50px; background: #eee; margin-bottom: 10px; display: inline-block; }
-.rank-max { background: var(--pink-hot); color: white; }
+.btn-google { background: white !important; color: #555 !important; border: 2px solid #ddd !important; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 0 var(--shadow) !important; }
