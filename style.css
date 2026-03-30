@@ -7,72 +7,62 @@
     --shadow: #d4a5b3;
 }
 
-body, html { height: 100%; margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg); }
+body, html { height: 100%; margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg); overflow: hidden; }
 .hidden { display: none !important; }
 
-/* CĂN GIỮA KHUNG ĐĂNG NHẬP */
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    background-color: var(--bg);
-}
-.auth-box {
-    width: 320px;
-    padding: 40px;
-    background: white;
-    border-radius: 30px;
-    border: 5px solid var(--sidebar-bg);
-    text-align: center;
-    box-shadow: 0 15px 0 var(--shadow);
-}
+/* AUTH CĂN GIỮA */
+.auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw; }
+.auth-box { width: 320px; padding: 40px; background: white; border-radius: 30px; border: 5px solid var(--sidebar-bg); text-align: center; box-shadow: 0 15px 0 var(--shadow); }
 
-/* SIDEBAR HÀNH LANG TRÁI */
-#toggle-sidebar { position: fixed; top: 15px; left: 15px; z-index: 100; background: var(--pink-hot); color: white; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; }
-#app-layout { display: flex; height: 100vh; }
-.sidebar { width: 260px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; padding: 20px; transition: 0.3s; flex-shrink: 0; }
+/* LAYOUT CHÍNH (SIDEBAR TRÁI - CONTENT PHẢI) */
+#app-layout { display: flex; height: 100vh; width: 100vw; }
+
+.sidebar { 
+    width: 260px; background: var(--sidebar-bg); color: white; 
+    display: flex; flex-direction: column; padding: 20px; 
+    transition: 0.3s; flex-shrink: 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+}
 .sidebar.collapsed { margin-left: -260px; }
 
+.sidebar-header { text-align: center; padding-bottom: 15px; border-bottom: 2px dashed rgba(255,255,255,0.4); }
+.sidebar-top-controls { padding: 20px 0; border-bottom: 2px dashed rgba(255,255,255,0.4); }
+.add-class-mini { display: flex; gap: 5px; margin-top: 10px; }
+.add-class-mini input { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 13px; outline: none; }
+.add-class-mini button { width: 40px; background: var(--pink-dark); box-shadow: none; }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding-top: 15px; }
+.nav-item { background: rgba(255,255,255,0.2); margin-bottom: 8px; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+.nav-item.active { background: white; color: var(--pink-hot); }
+.sidebar-footer { padding: 20px 0; text-align: center; }
+
+/* NỘI DUNG CHÍNH */
+.main-content { flex: 1; padding: 40px; overflow-y: auto; min-width: 0; }
+
 /* DASHBOARD Ô VUÔNG */
-.class-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Tự động chia ô */
-    gap: 20px;
-    padding: 20px 0;
+.class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; width: 100%; }
+.class-card { 
+    background: white; aspect-ratio: 1 / 1; border-radius: 25px; border: 4px solid var(--sidebar-bg); 
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+    box-shadow: 0 8px 0 var(--shadow); cursor: pointer; transition: 0.2s; padding: 20px; text-align: center;
 }
-.class-card {
-    background: white;
-    aspect-ratio: 1 / 1; /* Tạo hình vuông */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border-radius: 25px;
-    border: 4px solid var(--sidebar-bg);
-    box-shadow: 0 8px 0 var(--shadow);
-    cursor: pointer;
-    transition: 0.2s;
-    text-align: center;
-    padding: 15px;
-}
-.class-card:hover { transform: translateY(-5px); background: #fffafc; }
-.class-card h3 { margin: 10px 0 5px 0; color: var(--pink-hot); }
+.class-card:hover { transform: translateY(-8px); }
+.class-card h3 { color: var(--pink-hot); margin: 10px 0; font-size: 1.4rem; }
 
-/* STUDENT GRID */
+/* HỌC SINH VÀ BẬC */
 .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-.student-card { background: white; padding: 20px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; position: relative; }
+.student-card { background: white; padding: 20px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; }
 
-/* RANK BADGES */
 .rank-badge { font-size: 0.7rem; font-weight: 900; padding: 5px 12px; border-radius: 50px; margin-bottom: 10px; display: inline-block; }
 .rank-rookie { background: #eee; color: #888; }
-.rank-gold { background: #ffd700; color: #856404; }
-.rank-diamond { background: #00d2ff; color: white; }
-.rank-mythic { background: var(--pink-hot); color: white; animation: glow 1s infinite alternate; }
+.rank-gold { background: #ffd700; color: #856404; } /* 3đ */
+.rank-diamond { background: #00d2ff; color: white; } /* 5đ */
+.rank-mythic { background: var(--pink-hot); color: white; animation: glow 1s infinite alternate; } /* 10đ */
 
 @keyframes glow { from { box-shadow: 0 0 5px #f64c72; } to { box-shadow: 0 0 20px #f64c72; } }
 
-/* BUTTONS */
+/* UI TOOLS */
+#toggle-sidebar { position: fixed; top: 15px; left: 15px; z-index: 100; background: var(--pink-hot); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
+.card-heavy { background: white; padding: 20px; border-radius: 20px; border: 4px solid var(--sidebar-bg); margin-bottom: 25px; }
 button { border: none; border-radius: 50px; padding: 10px 20px; font-weight: 800; color: white; background: var(--pink-hot); cursor: pointer; box-shadow: 0 4px 0 #b33652; }
+button:active { transform: translateY(3px); box-shadow: none; }
 .btn-google { background: white !important; color: #555 !important; border: 2px solid #ddd !important; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
