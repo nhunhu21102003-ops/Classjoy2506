@@ -18,24 +18,21 @@ const provider = new GoogleAuthProvider();
 
 let classes = [];
 let currentClassIndex = null;
-
 const animalIcons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐣', '🐧', '🦄', '🐝', '🦒'];
 
-// Firebase Auth State
 onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('dashboard-screen').classList.remove('hidden');
-        document.getElementById('user-info').innerText = `Teacher: ${user.displayName || 'User'}`;
-        loadData(user.uid);
+        document.getElementById('user-info').innerText = `👩‍🏫 ${user.displayName || 'Teacher'}`;
+        loadData();
     } else {
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('dashboard-screen').classList.add('hidden');
     }
 });
 
-// Load data specific to user or global
-const loadData = (uid) => {
+const loadData = () => {
     onValue(ref(db, 'classes/'), (snapshot) => {
         classes = snapshot.val() || [];
         currentClassIndex !== null ? renderStudents() : renderClasses();
@@ -44,7 +41,6 @@ const loadData = (uid) => {
 
 const syncData = () => set(ref(db, 'classes/'), classes);
 
-// Render logic (giữ nguyên từ bản trước)
 const getAnimalIcon = (name) => {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -52,10 +48,10 @@ const getAnimalIcon = (name) => {
 };
 
 const getRank = (pts, max) => {
-    if (pts >= max) return { label: '🌟 ELITE 🌟', class: 'rank-max' };
-    if (pts >= 5) return { label: 'ADVANCED 💜', class: 'rank-3' };
-    if (pts >= 3) return { label: 'INTERMEDIATE 💙', class: 'rank-2' };
-    return { label: 'BEGINNER 💚', class: 'rank-1' };
+    if (pts >= max) return { label: '👑 ELITE 👑', class: 'rank-max' };
+    if (pts >= 5) return { label: 'ADVANCED 💎', class: 'rank-3' };
+    if (pts >= 3) return { label: 'INTERMEDIATE ⭐', class: 'rank-2' };
+    return { label: 'BEGINNER 🌱', class: 'rank-1' };
 };
 
 function renderClasses() {
@@ -63,8 +59,10 @@ function renderClasses() {
     list.innerHTML = '';
     classes.forEach((c, i) => {
         const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<h3>${c.name}</h3><button onclick="window.openClass(${i})">Manage Class 📂</button>`;
+        div.className = 'card-heavy';
+        div.style.cursor = 'pointer';
+        div.innerHTML = `<h3>${c.name}</h3><p>${c.students ? c.students.length : 0} Students</p><button onclick="window.openClass(${i})">Enter Class 📂</button>`;
+        div.onclick = (e) => { if(e.target.tagName !== 'BUTTON') window.openClass(i); };
         list.appendChild(div);
     });
 }
@@ -80,19 +78,18 @@ function renderStudents() {
         div.innerHTML = `
             <span class="rank-tag ${rank.class}">${rank.label}</span>
             <div class="animal-icon">${getAnimalIcon(s.name)}</div>
-            <br><strong>${s.name}</strong>
-            <p>Score: ${s.points}</p>
+            <br><strong style="font-size:1.2rem">${s.name}</strong>
+            <p style="font-size:1.1rem; color:var(--pink-hot)">Points: ${s.points}</p>
             <div class="point-controls">
-                <button onclick="window.modPoint(${i}, 1)">+</button>
-                <button class="btn-danger" onclick="window.modPoint(${i}, -1)">-</button>
+                <button onclick="window.modPoint(${i}, 1)" style="font-size:1.2rem; width:50px">+</button>
+                <button class="btn-danger" onclick="window.modPoint(${i}, -1)" style="font-size:1.2rem; width:50px">-</button>
             </div>
-            <button class="btn-remove" onclick="window.delStudent(${i})">Remove Student</button>
+            <button class="btn-remove" onclick="window.delStudent(${i})" style="background:none; color:var(--pink-mid); border:1px dashed var(--pink-mid); box-shadow:none; margin-top:10px; width:100%">Remove</button>
         `;
         list.appendChild(div);
     });
 }
 
-// Global window functions
 window.openClass = (i) => {
     currentClassIndex = i;
     document.getElementById('dashboard-screen').classList.add('hidden');
@@ -114,13 +111,11 @@ window.modPoint = (sIdx, val) => {
 
 window.delStudent = (i) => { if(confirm("Remove student?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
 
-// Event Listeners
 document.getElementById('google-login-btn').onclick = () => {
     signInWithPopup(auth, provider).catch(err => alert("Google Login Failed: " + err.message));
 };
 
 document.getElementById('login-btn').onclick = () => {
-    // Simple mock for manual login
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('dashboard-screen').classList.remove('hidden');
 };
