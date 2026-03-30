@@ -37,7 +37,6 @@ onAuthStateChanged(auth, (user) => {
     } else {
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('app-layout').classList.add('hidden');
-        document.getElementById('toggle-sidebar').classList.add('hidden');
     }
 });
 
@@ -70,12 +69,8 @@ function renderDashboard() {
     list.innerHTML = '';
     classes.forEach((c, i) => {
         const div = document.createElement('div');
-        div.className = 'class-card'; // Dùng class mới để ra hình vuông
-        div.innerHTML = `
-            <div style="font-size: 3rem;">🏫</div>
-            <h3>${c.name}</h3>
-            <p>${c.students?.length || 0} Students</p>
-        `;
+        div.className = 'class-card';
+        div.innerHTML = `<div style="font-size: 3.5rem;">🏫</div><h3>${c.name}</h3><p>${c.students?.length || 0} Students</p>`;
         div.onclick = () => window.openClass(i);
         list.appendChild(div);
     });
@@ -114,10 +109,8 @@ window.modPoint = (sIdx, val) => {
     const oldRank = getRank(student.points).label;
     student.points = Math.max(0, student.points + val);
     const newRank = getRank(student.points).label;
-
     if (val > 0 && oldRank !== newRank) document.getElementById('snd-level').play();
     else document.getElementById('snd-point').play();
-
     syncData();
 };
 
