@@ -1,9 +1,11 @@
 :root {
-    --bg: #f9f9f9;
-    --pink: #ffcfdf;
-    --blue: #b9f3fc;
-    --yellow: #fefeb7;
-    --text: #5a5a5a;
+    --bg: #fff0f5; /* Lavender Blush (Hồng rất nhạt) */
+    --pink-primary: #ffc0cb; /* Pink pastel */
+    --pink-secondary: #ffb6c1; /* Light Pink pastel */
+    --pink-dark: #ff8fb1; /* Hồng đậm hơn cho tiêu đề */
+    --pink-accent: #ffe4e1; /* Misty Rose cho nền card */
+    --text: #704f5e; /* Màu nâu tím nhẹ cho chữ */
+    --shadow: #e6b8c4;
 }
 
 body {
@@ -16,54 +18,176 @@ body {
 .container { max-width: 900px; margin: 0 auto; text-align: center; }
 .hidden { display: none; }
 
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 3px dashed var(--pink-secondary);
+}
+
+header h2 {
+    color: var(--pink-dark);
+    text-shadow: 1px 1px 0 #fff;
+}
+
 .card {
-    background: white;
+    background: #fff;
     padding: 20px;
     border-radius: 25px;
-    box-shadow: 0 10px 0px var(--pink);
+    border: 3px solid var(--pink-accent);
+    box-shadow: 0 10px 0px var(--shadow);
     margin-bottom: 25px;
+    transition: 0.3s;
+}
+
+.auth-card {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.controls.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 input {
     padding: 12px;
-    border: 2px solid var(--blue);
+    border: 2px solid var(--pink-primary);
     border-radius: 15px;
     margin: 5px;
     font-family: inherit;
+    background: #fff;
+    color: var(--text);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--pink-dark);
+    box-shadow: 0 0 10px rgba(255, 143, 177, 0.3);
 }
 
 button {
     padding: 12px 25px;
     border: none;
     border-radius: 20px;
-    background: var(--pink);
+    background: var(--pink-secondary);
     color: #fff;
     font-weight: 600;
     cursor: pointer;
     transition: 0.2s;
     box-shadow: 0 4px 0px #e6a8bc;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
-button:active { transform: translateY(3px); box-shadow: none; }
-.btn-danger { background: #ffb3b3; box-shadow: 0 4px 0px #d48e8e; }
+button:hover {
+    background: var(--pink-dark);
+}
+
+button:active {
+    transform: translateY(3px);
+    box-shadow: none;
+}
+
+.btn-danger {
+    background: #ffb3b3;
+    box-shadow: 0 4px 0px #d48e8e;
+}
+
+.btn-danger:hover {
+    background: #ff9999;
+}
+
+.btn-secondary {
+    background: var(--pink-accent);
+    color: var(--text);
+    box-shadow: 0 4px 0px #e6c8c4;
+}
+
+.settings-bar.card {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 5px 0px var(--shadow);
+}
+
+.settings-bar input {
+    width: 60px;
+    text-align: center;
+}
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     margin-top: 20px;
 }
 
+/* Kiểu cho Card Lớp học */
+#class-list .card {
+    background-color: #fff;
+    border: 4px solid var(--pink-primary);
+}
+
+#class-list h3 {
+    color: var(--pink-dark);
+    margin-bottom: 15px;
+}
+
+/* Kiểu cho Card Học sinh */
 .student-card {
     background: white;
     padding: 20px;
     border-radius: 20px;
-    border: 4px solid var(--blue);
+    border: 4px solid var(--pink-primary);
     transition: 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
-.rank-tag { font-size: 0.75rem; font-weight: bold; display: block; margin-bottom: 8px; }
-.rank-1 { color: #a5d6a7; }
-.rank-2 { color: #90caf9; }
-.rank-3 { color: #fff59d; background: #5a5a5a; border-radius: 5px; }
-.rank-max { color: #ef9a9a; font-size: 0.9rem; text-shadow: 1px 1px 0px #000; }
+.student-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(255, 182, 193, 0.3);
+}
+
+.rank-tag {
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+/* Màu thăng bậc (vẫn giữ tông Pastel khác để phân biệt) */
+.rank-1 { color: #8eb48e; background-color: #e0f2f1; } /* Beginner - Xanh lá nhạt */
+.rank-2 { color: #5a91e8; background-color: #e3f2fd; } /* Intermediate - Xanh dương nhạt */
+.rank-3 { color: #9c27b0; background-color: #f3e5f5; } /* Advanced - Tím nhạt */
+.rank-max { color: #e91e63; background-color: #fce4ec; font-size: 0.9rem; text-shadow: 1px 1px 0px #fff; } /* Elite - Hồng đậm */
+
+.student-card strong {
+    color: var(--pink-dark);
+    font-size: 1.1rem;
+}
+
+.student-card p {
+    font-weight: 600;
+    margin: 10px 0;
+}
+
+.student-card .point-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.student-card button {
+    padding: 8px 15px;
+}
