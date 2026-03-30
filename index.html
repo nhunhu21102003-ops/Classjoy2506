@@ -19,7 +19,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
-        body { font-family: 'Quicksand', sans-serif; margin: 0; padding: 0; }
+        body { font-family: 'Quicksand', sans-serif; }
         .winner-card { animation: celebrate 2s infinite; border-color: #fbbf24 !important; }
         @keyframes celebrate {
             0%, 100% { transform: scale(1); }
@@ -31,6 +31,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // 1. Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
             authDomain: "classjoy-1002f.firebaseapp.com",
@@ -40,6 +41,7 @@
             appId: "1:598580384018:web:bd967c01cf077db61d23cb"
         };
 
+        // Khởi tạo Firebase
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -48,7 +50,24 @@
         const { useState, useEffect, useMemo } = React;
 
         function App() {
-            const { Heart, LogIn, Plus, LogOut, ChevronLeft, Trophy, Trash2, RefreshCcw, UserPlus, Star } = lucide;
+            // Lấy icon từ thư viện Lucide một cách an toàn
+            const Heart = () => <i data-lucide="heart"></i>;
+            const LogIn = () => <i data-lucide="log-in"></i>;
+            const Plus = () => <i data-lucide="plus"></i>;
+            const LogOut = () => <i data-lucide="log-out"></i>;
+            const ChevronLeft = () => <i data-lucide="chevron-left"></i>;
+            const Trophy = () => <i data-lucide="trophy"></i>;
+            const Trash2 = () => <i data-lucide="trash-2"></i>;
+            const RefreshCcw = () => <i data-lucide="refresh-ccw"></i>;
+            const UserPlus = () => <i data-lucide="user-plus"></i>;
+            const Star = () => <i data-lucide="star"></i>;
+
+            // Kích hoạt Lucide Icons sau khi render
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
 
             const [user, setUser] = useState(null);
             const [loading, setLoading] = useState(true);
@@ -57,6 +76,7 @@
             const [modals, setModals] = useState({ class: false, student: false });
             const [formData, setFormData] = useState({ className: '', maxPoints: 10, studentName: '' });
 
+            // Theo dõi trạng thái đăng nhập
             useEffect(() => {
                 return auth.onAuthStateChanged((u) => { 
                     setUser(u); 
@@ -64,6 +84,7 @@
                 });
             }, []);
 
+            // Lấy dữ liệu lớp học từ Firestore
             useEffect(() => {
                 if (!user) return;
                 const unsubscribe = db.collection('users').doc(user.uid).collection('classes')
@@ -91,7 +112,7 @@
 
             const deleteClass = async (id, e) => {
                 e.stopPropagation();
-                if (confirm("Delete this class?")) {
+                if (confirm("Xóa lớp học này?")) {
                     await db.collection('users').doc(user.uid).collection('classes').doc(id).delete();
                 }
             };
@@ -120,8 +141,8 @@
                 const updated = cls.students.map(s => {
                     if (s.id === sId) {
                         const newPts = Math.max(0, s.points + val);
-                        if (val > 0 && newPts === cls.maxPoints) {
-                            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                        if (val > 0 && newPts >= cls.maxPoints) {
+                            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
                         }
                         return { ...s, points: newPts };
                     }
@@ -131,16 +152,9 @@
             };
 
             const deleteStudent = async (sId) => {
-                if (!confirm("Remove student?")) return;
+                if (!confirm("Xóa học sinh này?")) return;
                 const cls = classes.find(c => c.id === activeClassId);
                 const updated = cls.students.filter(s => s.id !== sId);
-                await db.collection('users').doc(user.uid).collection('classes').doc(activeClassId).update({ students: updated });
-            };
-
-            const resetPoints = async () => {
-                if (!confirm("Reset all points to 0?")) return;
-                const cls = classes.find(c => c.id === activeClassId);
-                const updated = cls.students.map(s => ({ ...s, points: 0 }));
                 await db.collection('users').doc(user.uid).collection('classes').doc(activeClassId).update({ students: updated });
             };
 
@@ -149,16 +163,20 @@
                 return activeClass ? [...activeClass.students].sort((a, b) => b.points - a.points) : [];
             }, [activeClass]);
 
-            if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+            if (loading) return (
+                <div className="min-h-screen flex items-center justify-center bg-white">
+                    <p className="font-bold text-pink-500 animate-pulse">Đang tải lớp học...</p>
+                </div>
+            );
 
             if (!user) return (
                 <div className="min-h-screen flex items-center justify-center p-6">
-                    <div className="bg-white p-12 rounded-[50px] shadow-2xl text-center max-w-md w-full">
-                        <Heart className="mx-auto mb-6 text-pink-500" size={48} fill="currentColor"/>
+                    <div className="bg-white p-12 rounded-[50px] shadow-2xl text-center max-w-md w-full border-[10px] border-pink-50">
+                        <div className="text-pink-500 mb-6 flex justify-center"><Star /></div>
                         <h1 className="text-4xl font-black text-pink-600 mb-2">JoyfulClass</h1>
-                        <p className="text-gray-400 mb-10 italic">English Version</p>
-                        <button onClick={handleLogin} className="w-full bg-pink-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3">
-                            <LogIn size={20}/> SIGN IN WITH GOOGLE
+                        <p className="text-gray-400 mb-10 italic text-sm">Quản lý lớp học hạnh phúc</p>
+                        <button onClick={handleLogin} className="w-full bg-pink-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-pink-600 transition-all shadow-lg">
+                            ĐĂNG NHẬP VỚI GOOGLE
                         </button>
                     </div>
                 </div>
@@ -168,65 +186,65 @@
                 <div className="min-h-screen flex flex-col">
                     <header className="bg-white border-b-2 border-pink-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveClassId(null)}>
-                            <Star className="text-pink-500" size={24} fill="currentColor"/>
+                            <div className="text-pink-500"><Star /></div>
                             <h2 className="text-xl font-bold text-pink-600">JoyfulClass</h2>
                         </div>
-                        <button onClick={handleLogout} className="text-rose-400 p-2"><LogOut size={20}/></button>
+                        <div className="flex items-center gap-4">
+                            <span className="text-xs font-bold text-gray-400 hidden sm:block">{user.displayName}</span>
+                            <button onClick={handleLogout} className="text-rose-400 p-2 hover:bg-rose-50 rounded-full transition-all"><LogOut /></button>
+                        </div>
                     </header>
 
                     <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
                         {!activeClassId ? (
                             <section>
-                                <div className="flex justify-between items-center mb-8">
-                                    <h1 className="text-3xl font-black text-gray-800">Welcome! 👋</h1>
-                                    <button onClick={() => setModals({...modals, class: true})} className="bg-pink-500 text-white p-4 rounded-2xl shadow-lg"><Plus size={24}/></button>
+                                <div className="flex justify-between items-center mb-10">
+                                    <h1 className="text-3xl font-black text-gray-800">Xin chào! 👋</h1>
+                                    <button onClick={() => setModals({...modals, class: true})} className="bg-pink-500 text-white p-4 rounded-2xl shadow-xl hover:scale-110 transition-transform"><Plus /></button>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {classes.map(cls => (
-                                        <div key={cls.id} onClick={() => setActiveClassId(cls.id)} className="bg-white p-8 rounded-[40px] shadow-sm relative cursor-pointer border-2 border-transparent hover:border-pink-200 transition-all">
-                                            <button onClick={(e) => deleteClass(cls.id, e)} className="absolute top-6 right-6 text-gray-300 hover:text-rose-500"><Trash2 size={18}/></button>
-                                            <Trophy className="text-pink-400 mb-4" size={32}/>
+                                        <div key={cls.id} onClick={() => setActiveClassId(cls.id)} className="bg-white p-8 rounded-[40px] shadow-sm relative cursor-pointer border-2 border-transparent hover:border-pink-200 transition-all group">
+                                            <button onClick={(e) => deleteClass(cls.id, e)} className="absolute top-6 right-6 text-gray-200 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 /></button>
+                                            <div className="text-pink-400 mb-4"><Trophy /></div>
                                             <h3 className="text-2xl font-bold text-gray-800">{cls.name}</h3>
-                                            <p className="text-pink-400 text-sm font-bold uppercase mt-2">{cls.students?.length || 0} Students | Goal: {cls.maxPoints}</p>
+                                            <p className="text-pink-400 text-xs font-bold uppercase mt-2">{cls.students?.length || 0} Học sinh | Mục tiêu: {cls.maxPoints}</p>
                                         </div>
                                     ))}
                                 </div>
                             </section>
                         ) : (
-                            <section>
+                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex justify-between items-center mb-8">
                                     <button onClick={() => setActiveClassId(null)} className="flex items-center gap-2 font-bold text-gray-400 hover:text-pink-500 transition-colors">
-                                        <ChevronLeft size={20}/> BACK
+                                        <ChevronLeft /> QUAY LẠI
                                     </button>
                                     <div className="flex gap-2">
-                                        <button onClick={resetPoints} className="bg-white border-2 border-pink-100 text-pink-500 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2">
-                                            <RefreshCcw size={16}/> RESET
-                                        </button>
-                                        <button onClick={() => setModals({...modals, student: true})} className="bg-pink-500 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2">
-                                            <UserPlus size={16}/> ADD
+                                        <button onClick={() => setModals({...modals, student: true})} className="bg-pink-500 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-pink-100">
+                                            <UserPlus /> THÊM HỌC SINH
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="bg-white p-10 rounded-[50px] border-4 border-pink-50 mb-10 flex flex-col md:flex-row justify-between items-center">
-                                    <h2 className="text-4xl font-black text-gray-800">{activeClass?.name}</h2>
-                                    <p className="text-amber-500 font-bold">GOAL: {activeClass?.maxPoints} POINTS</p>
+                                <div className="bg-white p-10 rounded-[50px] border-4 border-pink-50 mb-10 text-center">
+                                    <h2 className="text-5xl font-black text-gray-800 mb-2">{activeClass?.name}</h2>
+                                    <p className="text-amber-500 font-bold tracking-widest uppercase text-sm">Mục tiêu: {activeClass?.maxPoints} Điểm</p>
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                                     {sortedStudents.map(s => {
                                         const isWinner = s.points >= activeClass.maxPoints;
                                         return (
-                                            <div key={s.id} className={`bg-white p-6 rounded-[35px] border-4 flex flex-col items-center relative ${isWinner ? 'winner-card' : 'border-gray-50'}`}>
-                                                <button onClick={() => deleteStudent(s.id)} className="absolute top-4 right-4 text-gray-200 hover:text-rose-500"><Trash2 size={14}/></button>
+                                            <div key={s.id} className={`bg-white p-6 rounded-[35px] border-4 flex flex-col items-center relative transition-all ${isWinner ? 'winner-card border-amber-400' : 'border-gray-50'}`}>
+                                                <button onClick={() => deleteStudent(s.id)} className="absolute top-4 right-4 text-gray-200 hover:text-rose-500"><Trash2 /></button>
                                                 <div className={`${s.avatarColor} w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mb-4`}>
                                                     {isWinner ? '👑' : s.avatar}
                                                 </div>
-                                                <p className="font-bold text-gray-700 mb-1">{s.name}</p>
+                                                <p className="font-bold text-gray-700 text-center mb-1 truncate w-full">{s.name}</p>
                                                 <div className="text-3xl font-black text-pink-500 my-2">{s.points}</div>
-                                                <div className="flex gap-2 w-full">
-                                                    <button onClick={() => updatePoints(s.id, -1)} className="flex-1 bg-gray-50 py-2 rounded-xl font-bold">-</button>
-                                                    <button onClick={() => updatePoints(s.id, 1)} className="flex-1 bg-pink-500 text-white py-2 rounded-xl font-bold">+</button>
+                                                <div className="flex gap-2 w-full mt-2">
+                                                    <button onClick={() => updatePoints(s.id, -1)} className="flex-1 bg-gray-50 py-2 rounded-xl font-bold text-gray-400 hover:bg-gray-100">-</button>
+                                                    <button onClick={() => updatePoints(s.id, 1)} className="flex-1 bg-pink-500 text-white py-2 rounded-xl font-bold shadow-md hover:bg-pink-600">+</button>
                                                 </div>
                                             </div>
                                         );
@@ -236,15 +254,16 @@
                         )}
                     </main>
 
+                    {/* Modals */}
                     {modals.class && (
                         <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
-                            <div className="bg-white p-8 rounded-[40px] w-full max-w-sm">
-                                <h2 className="text-xl font-bold mb-4 text-center">New Class</h2>
+                            <div className="bg-white p-8 rounded-[40px] w-full max-w-sm shadow-2xl">
+                                <h2 className="text-xl font-black mb-6 text-center text-gray-800">Tạo lớp học mới</h2>
                                 <form onSubmit={createClass} className="flex flex-col gap-4">
-                                    <input placeholder="Class Name" className="bg-gray-50 p-4 rounded-xl border-none outline-none" value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} />
-                                    <input type="number" placeholder="Goal Points" className="bg-gray-50 p-4 rounded-xl border-none outline-none" value={formData.maxPoints} onChange={e => setFormData({...formData, maxPoints: e.target.value})} />
-                                    <button className="bg-pink-500 text-white py-4 rounded-xl font-bold">CREATE</button>
-                                    <button type="button" onClick={() => setModals({...modals, class: false})} className="text-gray-400">Cancel</button>
+                                    <input autoFocus placeholder="Tên lớp (VD: 5A1)" className="bg-gray-50 p-4 rounded-2xl outline-none font-bold" value={formData.className} onChange={e => setFormData({...formData, className: e.target.value})} />
+                                    <input type="number" placeholder="Điểm mục tiêu" className="bg-gray-50 p-4 rounded-2xl outline-none font-bold" value={formData.maxPoints} onChange={e => setFormData({...formData, maxPoints: e.target.value})} />
+                                    <button className="bg-pink-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-pink-100 mt-2">TẠO NGAY</button>
+                                    <button type="button" onClick={() => setModals({...modals, class: false})} className="text-gray-400 font-bold text-sm">HỦY BỎ</button>
                                 </form>
                             </div>
                         </div>
@@ -252,12 +271,12 @@
 
                     {modals.student && (
                         <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4">
-                            <div className="bg-white p-8 rounded-[40px] w-full max-w-sm">
-                                <h2 className="text-xl font-bold mb-4 text-center">Add Student</h2>
+                            <div className="bg-white p-8 rounded-[40px] w-full max-w-sm shadow-2xl">
+                                <h2 className="text-xl font-black mb-6 text-center text-gray-800">Thêm học sinh</h2>
                                 <form onSubmit={addStudent} className="flex flex-col gap-4">
-                                    <input placeholder="Student Name" className="bg-gray-50 p-4 rounded-xl border-none outline-none" value={formData.studentName} onChange={e => setFormData({...formData, studentName: e.target.value})} />
-                                    <button className="bg-pink-500 text-white py-4 rounded-xl font-bold">ADD</button>
-                                    <button type="button" onClick={() => setModals({...modals, student: false})} className="text-gray-400">Cancel</button>
+                                    <input autoFocus placeholder="Tên học sinh..." className="bg-gray-50 p-4 rounded-2xl outline-none font-bold" value={formData.studentName} onChange={e => setFormData({...formData, studentName: e.target.value})} />
+                                    <button className="bg-pink-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-pink-100 mt-2">THÊM VÀO LỚP</button>
+                                    <button type="button" onClick={() => setModals({...modals, student: false})} className="text-gray-400 font-bold text-sm">HỦY BỎ</button>
                                 </form>
                             </div>
                         </div>
