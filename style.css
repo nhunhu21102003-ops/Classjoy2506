@@ -1,77 +1,68 @@
 :root {
-    --bg: #ffe4ed; /* Hồng nền đậm hơn để không bị chói */
-    --pink-light: #ffb7ce;
-    --pink-mid: #ff85a1; /* Hồng trung tâm */
-    --pink-hot: #f64c72; /* Hồng đậm/Hot Pink cho nút bấm */
-    --pink-dark: #834055; /* Màu chữ nâu hồng đậm (chống loá) */
+    --bg: #ffe4ed;
+    --sidebar-bg: #ff85a1;
+    --pink-hot: #f64c72;
+    --pink-dark: #834055;
     --white: #ffffff;
     --shadow: #d4a5b3;
 }
 
-body, html {
-    height: 100%; margin: 0;
-    font-family: 'Quicksand', sans-serif;
-    background-color: var(--bg);
-    color: var(--pink-dark);
-}
-
+body, html { height: 100%; margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg); overflow: hidden; }
 .hidden { display: none !important; }
-.container { max-width: 900px; margin: 0 auto; padding: 20px; text-align: center; }
 
-/* Auth Box */
-.auth-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-.auth-box { width: 320px; padding: 40px; border: 4px solid var(--pink-mid) !important; }
+/* Auth */
+.auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg); }
+.auth-box { width: 300px; padding: 40px; text-align: center; background: white; border-radius: 30px; border: 4px solid var(--sidebar-bg); }
 
-/* Title & Headers */
-.main-title { color: var(--pink-hot); text-shadow: 2px 2px 0px #fff; font-size: 2.8rem; margin: 0; }
-.section-title { color: var(--pink-hot); text-shadow: 1px 1px 0px #fff; }
+/* Layout chính */
+#app-layout { display: flex; height: 100vh; width: 100vw; }
 
-/* Cards */
-.card { background: var(--white); border-radius: 30px; border: 3px solid var(--pink-light); box-shadow: 0 8px 0px var(--shadow); transition: 0.3s; }
-.card-heavy { background: var(--white); border-radius: 20px; border: 4px solid var(--pink-mid); padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 0px var(--shadow); }
-
-/* Inputs */
-input {
-    padding: 12px 15px; border: 3px solid var(--pink-light); border-radius: 15px;
-    font-family: inherit; font-weight: bold; color: var(--pink-dark); outline: none;
+/* SIDEBAR */
+.sidebar {
+    width: 260px; background: var(--sidebar-bg); color: white;
+    display: flex; flex-direction: column; padding: 20px;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 10;
 }
-input:focus { border-color: var(--pink-hot); background: #fffafc; }
 
-/* Buttons */
-button {
-    padding: 12px 25px; border: none; border-radius: 50px;
-    background: var(--pink-hot); color: white; font-weight: 800;
-    cursor: pointer; transition: 0.2s; box-shadow: 0 5px 0px #b33652;
+.sidebar-header { text-align: center; padding-bottom: 20px; border-bottom: 2px dashed rgba(255,255,255,0.5); margin-bottom: 20px; }
+.user-avatar { font-size: 3rem; margin-bottom: 10px; }
+.user-name { font-weight: 700; font-size: 1.1rem; word-break: break-word; }
+
+.sidebar-nav { flex: 1; overflow-y: auto; }
+.nav-label { font-size: 0.8rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; opacity: 0.9; }
+
+/* Item lớp học trong sidebar */
+.nav-item {
+    background: rgba(255,255,255,0.2); margin-bottom: 10px; padding: 12px 15px;
+    border-radius: 15px; cursor: pointer; transition: 0.2s; font-weight: 600;
 }
-button:hover { background: #ff5e84; transform: translateY(-2px); }
+.nav-item:hover { background: rgba(255,255,255,0.4); transform: translateX(5px); }
+.nav-item.active { background: white; color: var(--pink-hot); box-shadow: 0 4px 0px var(--shadow); }
+
+.btn-logout-sidebar {
+    background: var(--pink-dark); color: white; border: none; padding: 12px;
+    border-radius: 15px; cursor: pointer; font-weight: 700; margin-top: 20px;
+}
+
+/* MAIN CONTENT */
+.main-content { flex: 1; padding: 40px; overflow-y: auto; }
+.card-heavy { background: white; padding: 20px; border-radius: 20px; border: 4px solid var(--sidebar-bg); margin-bottom: 25px; box-shadow: 0 8px 0px var(--shadow); }
+
+/* Buttons & Inputs */
+input { padding: 12px; border: 3px solid var(--bg); border-radius: 15px; outline: none; font-family: inherit; font-weight: 700; }
+button { padding: 12px 20px; border: none; border-radius: 50px; background: var(--pink-hot); color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #b33652; transition: 0.2s; }
 button:active { transform: translateY(3px); box-shadow: none; }
 
-.btn-google { background: white !important; color: #555 !important; border: 2px solid var(--pink-light) !important; box-shadow: 0 4px 0px var(--shadow) !important; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 15px; }
-.btn-logout { background: var(--pink-dark); box-shadow: 0 5px 0px #4d2632; }
-.btn-back { background: var(--pink-light); color: var(--pink-dark); box-shadow: 0 5px 0px var(--shadow); }
-.btn-danger { background: #ff4d4d; box-shadow: 0 5px 0px #b33535; }
+/* Student Grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+.student-card { background: white; padding: 20px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; position: relative; }
+.animal-icon { font-size: 3rem; animation: bounce 2s infinite ease-in-out; display: inline-block; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-/* Grid & Student Cards */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; padding: 20px 0; }
+/* Cụm nút bấm điểm */
+.point-controls { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+.btn-plus { background: #ff1493 !important; width: 60px; font-size: 1.5rem; }
+.btn-minus { background: #ff4d4d !important; width: 60px; font-size: 1.5rem; }
 
-.student-card {
-    background: var(--white); padding: 20px; border-radius: 25px;
-    border: 4px solid var(--pink-mid); box-shadow: 0 8px 0px var(--shadow);
-    position: relative; overflow: hidden;
-}
-
-.animal-icon { font-size: 3.5rem; margin-bottom: 10px; display: inline-block; animation: bounce 2s infinite ease-in-out; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-
-.rank-tag { font-size: 0.75rem; font-weight: 900; padding: 5px 12px; border-radius: 50px; margin-bottom: 10px; display: inline-block; }
-.rank-1 { background: #dff9fb; color: #130f40; border: 2px solid #7ed6df; }
-.rank-2 { background: #f9ca24; color: #000; border: 2px solid #f0932b; }
-.rank-3 { background: #be2edd; color: #fff; border: 2px solid #686de0; }
-.rank-max { background: var(--pink-hot); color: #fff; border: 2px solid #fff; animation: glow 1s infinite alternate; }
-
-@keyframes glow { from { box-shadow: 0 0 5px var(--pink-hot); } to { box-shadow: 0 0 20px var(--pink-hot); } }
-
-.divider { margin: 25px 0; border-top: 2px solid var(--pink-light); position: relative; }
-.divider span { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--white); padding: 0 15px; font-weight: bold; color: var(--pink-light); }
-
-.user-badge { background: var(--white); padding: 5px 15px; border-radius: 20px; font-weight: bold; border: 2px solid var(--pink-mid); }
+.rank-tag { font-size: 0.7rem; font-weight: 900; padding: 4px 10px; border-radius: 50px; background: #eee; margin-bottom: 10px; display: inline-block; }
+.rank-max { background: var(--pink-hot); color: white; }
