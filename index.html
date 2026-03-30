@@ -1,123 +1,61 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JoyfulClass - Quản lý lớp học</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fdf2f8; }
-        #root { min-height: 100vh; }
-    </style>
+    <title>ClassJoy - Student Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="root"></div>
+    <div id="app">
+        <section id="auth-screen" class="container">
+            <h1 style="color: #ffb7ce;">Teacher Login</h1>
+            <div class="card">
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <button id="login-btn">Enter Classroom</button>
+            </div>
+        </section>
 
-    <script type="text/babel">
-        // Cấu hình Firebase của bạn
-        const firebaseConfig = {
-            apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
-            authDomain: "classjoy-1002f.firebaseapp.com",
-            projectId: "classjoy-1002f",
-            storageBucket: "classjoy-1002f.firebasestorage.app",
-            messagingSenderId: "598580384018",
-            appId: "1:598580384018:web:bd967c01cf077db61d23cb"
-        };
+        <section id="dashboard-screen" class="container hidden">
+            <header>
+                <h2>Teacher's Dashboard</h2>
+                <button class="btn-danger" id="logout-btn">Logout</button>
+            </header>
+            
+            <div class="controls">
+                <input type="text" id="new-class-name" placeholder="Class Name (e.g. 10A1)">
+                <button id="add-class-btn">+ Create Class</button>
+            </div>
 
-        // Khởi tạo Firebase an toàn
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+            <div id="class-list" class="grid"></div>
+        </section>
 
-        function App() {
-            const [user, setUser] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
+        <section id="class-detail-screen" class="container hidden">
+            <header>
+                <button id="back-btn">← Back</button>
+                <h2 id="current-class-title">Class Name</h2>
+                <button class="btn-danger" id="delete-class-btn">Delete Class</button>
+            </header>
 
-            // Theo dõi trạng thái đăng nhập
-            React.useEffect(() => {
-                const unsubscribe = auth.onAuthStateChanged((u) => {
-                    setUser(u);
-                    setLoading(false);
-                });
-                return () => unsubscribe();
-            }, []);
+            <div class="settings-bar card">
+                <span>Max Points for Level Up: </span>
+                <input type="number" id="max-points-input" value="10">
+            </div>
 
-            const handleLogin = async () => {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                try {
-                    await auth.signInWithPopup(provider);
-                } catch (error) {
-                    alert("Lỗi đăng nhập: " + error.message);
-                }
-            };
+            <div class="controls">
+                <input type="text" id="new-student-name" placeholder="Student Name">
+                <button id="add-student-btn">Add Student</button>
+            </div>
 
-            if (loading) {
-                return (
-                    <div className="flex h-screen items-center justify-center">
-                        <div className="text-pink-500 font-bold animate-bounce">Đang khởi tạo JoyfulClass...</div>
-                    </div>
-                );
-            }
+            <div id="student-list" class="grid"></div>
+        </section>
+    </div>
 
-            if (!user) {
-                return (
-                    <div className="h-screen flex flex-col items-center justify-center p-4">
-                        <div className="bg-white p-10 rounded-[40px] shadow-2xl border-t-8 border-pink-400 text-center max-w-sm w-full">
-                            <h1 className="text-4xl font-black text-pink-600 mb-2">JoyfulClass</h1>
-                            <p className="text-gray-400 mb-8 italic text-sm">Happy Classroom Management</p>
-                            <button 
-                                onClick={handleLogin}
-                                className="w-full bg-pink-500 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-pink-600 active:scale-95 transition-all"
-                            >
-                                ĐĂNG NHẬP GOOGLE
-                            </button>
-                        </div>
-                    </div>
-                );
-            }
+    <audio id="snd-point" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="snd-level" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
 
-            return (
-                <div className="p-6 max-w-2xl mx-auto">
-                    <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-2xl shadow-sm">
-                        <div>
-                            <h2 className="font-bold text-pink-600">JoyfulClass</h2>
-                            <p className="text-xs text-gray-500">{user.displayName}</p>
-                        </div>
-                        <button 
-                            onClick={() => auth.signOut()}
-                            className="text-xs font-bold text-red-400 hover:text-red-600"
-                        >
-                            Đăng xuất
-                        </button>
-                    </header>
-
-                    <div className="bg-white p-8 rounded-[30px] shadow-sm text-center border-2 border-dashed border-pink-100">
-                        <div className="text-5xl mb-4">🚀</div>
-                        <h3 className="text-xl font-bold text-gray-800">Chào mừng bạn trở lại!</h3>
-                        <p className="text-gray-500 mt-2 text-sm">Hệ thống Firebase đã kết nối thành công. Hãy bắt đầu xây dựng lớp học của bạn nhé.</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // Render ứng dụng
-        try {
-            const root = ReactDOM.createRoot(document.getElementById('root'));
-            root.render(<App />);
-        } catch (e) {
-            console.error("Render Error:", e);
-        }
-    </script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
