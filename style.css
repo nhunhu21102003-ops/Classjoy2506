@@ -8,125 +8,86 @@
     --shadow: #e6b8c4;
 }
 
-body {
+body, html {
+    height: 100%;
+    margin: 0;
     font-family: 'Quicksand', sans-serif;
     background-color: var(--bg);
     color: var(--text);
-    margin: 0; padding: 20px;
 }
 
-.container { max-width: 900px; margin: 0 auto; text-align: center; }
-.hidden { display: none; }
+/* Căn giữa màn hình đăng nhập */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-box {
+    width: 100%;
+    max-width: 380px;
+    padding: 40px 30px;
+    text-align: center;
+}
 
 .main-title {
     color: var(--pink-dark);
     text-shadow: 2px 2px 0px #fff;
-    font-size: 2.5rem;
-    margin-top: 50px;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
 }
 
-header {
+/* Nút Google */
+.btn-google {
+    background: white !important;
+    color: #757575 !important;
+    border: 1px solid #ddd !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 3px dashed var(--pink-secondary);
+    gap: 10px;
+    font-size: 14px;
 }
 
-header h2 { color: var(--pink-dark); }
+.btn-google img { width: 18px; height: 18px; }
 
-.card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 25px;
-    border: 3px solid var(--pink-accent);
-    box-shadow: 0 10px 0px var(--shadow);
-    margin-bottom: 25px;
-}
-
-.auth-card { max-width: 400px; margin: 0 auto; }
-
-input {
-    padding: 12px;
-    border: 2px solid var(--pink-primary);
-    border-radius: 15px;
-    margin: 5px;
-    font-family: inherit;
-    outline: none;
-}
-
-button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 20px;
-    background: var(--pink-secondary);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 4px 0px #e6a8bc;
-}
-
-button:hover { background: var(--pink-dark); }
-button:active { transform: translateY(3px); box-shadow: none; }
-
-.btn-danger { background: #ffb3b3; box-shadow: 0 4px 0px #d48e8e; }
-.btn-secondary { background: var(--pink-accent); color: var(--text); box-shadow: 0 4px 0px #e6c8c4; }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.student-card {
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    border: 4px solid var(--pink-primary);
+.divider {
+    margin: 20px 0;
+    border-top: 1px solid #eee;
     position: relative;
-    transition: 0.3s;
 }
 
-.animal-icon {
-    font-size: 3.5rem;
-    margin-bottom: 10px;
-    display: inline-block;
-    animation: bounce 2s infinite ease-in-out;
+.divider span {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0 10px;
+    font-size: 12px;
+    color: #ccc;
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px) rotate(5deg); }
-}
-
-.rank-tag {
-    font-size: 0.7rem;
-    font-weight: bold;
-    padding: 4px 10px;
-    border-radius: 12px;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-
+/* Các phần khác giữ nguyên từ code cũ */
+.container { max-width: 900px; margin: 0 auto; padding: 20px; text-align: center; }
+.hidden { display: none !important; }
+.card { background: #fff; border-radius: 25px; border: 3px solid var(--pink-accent); box-shadow: 0 10px 0px var(--shadow); margin-bottom: 25px; }
+input { padding: 12px; border: 2px solid var(--pink-primary); border-radius: 15px; margin: 5px; outline: none; }
+button { padding: 12px 25px; border: none; border-radius: 20px; background: var(--pink-secondary); color: #fff; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0px #e6a8bc; }
+button:active { transform: translateY(3px); box-shadow: none; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+.student-card { background: white; padding: 20px; border-radius: 20px; border: 4px solid var(--pink-primary); transition: 0.3s; position: relative; }
+.animal-icon { font-size: 3.5rem; margin-bottom: 10px; display: inline-block; animation: bounce 2s infinite ease-in-out; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px) rotate(5deg); } }
+.rank-tag { font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 10px; }
 .rank-1 { background: #e8f5e9; color: #4caf50; }
 .rank-2 { background: #e3f2fd; color: #2196f3; }
 .rank-3 { background: #f3e5f5; color: #9c27b0; }
 .rank-max { background: #fce4ec; color: #e91e63; border: 1px solid #ff8fb1; }
-
-.point-controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 15px 0;
-}
-
-.btn-remove {
-    background: none !important;
-    color: #ffb6c1 !important;
-    box-shadow: none !important;
-    border: 1px dashed #ffb6c1 !important;
-    font-size: 10px !important;
-    width: 100%;
-}
+.btn-danger { background: #ffb3b3; box-shadow: 0 4px 0px #d48e8e; }
+.btn-secondary { background: var(--pink-accent); color: var(--text); box-shadow: 0 4px 0px #e6c8c4; }
+.btn-remove { background: none !important; color: #ffb6c1 !important; box-shadow: none !important; border: 1px dashed #ffb6c1 !important; font-size: 10px !important; width: 100%; margin-top: 10px;}
