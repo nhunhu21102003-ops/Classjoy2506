@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// --- DÁN CẤU HÌNH FIREBASE CỦA BẠN VÀO ĐÂY ---
 const firebaseConfig = {
   apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
   authDomain: "classjoy-1002f.firebaseapp.com",
@@ -9,6 +10,7 @@ const firebaseConfig = {
   messagingSenderId: "598580384018",
   appId: "1:598580384018:web:bd967c01cf077db61d23cb"
 };
+// ---------------------------------------------
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
@@ -32,10 +34,10 @@ function syncData() {
 
 // --- Logic ---
 const getRank = (pts, max) => {
-    if (pts >= max) return { label: '⭐ ELITE ⭐', class: 'rank-max' };
-    if (pts >= 5) return { label: 'ADVANCED', class: 'rank-3' };
-    if (pts >= 3) return { label: 'INTERMEDIATE', class: 'rank-2' };
-    return { label: 'BEGINNER', class: 'rank-1' };
+    if (pts >= max) return { label: '🌟 ELITE 🌟', class: 'rank-max' };
+    if (pts >= 5) return { label: 'ADVANCED 💜', class: 'rank-3' };
+    if (pts >= 3) return { label: 'INTERMEDIATE 💙', class: 'rank-2' };
+    return { label: 'BEGINNER 💚', class: 'rank-1' };
 };
 
 function renderClasses() {
@@ -43,8 +45,12 @@ function renderClasses() {
     list.innerHTML = '';
     classes.forEach((c, i) => {
         const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `<h3>${c.name}</h3><button onclick="window.openClass(${i})">Manage Class</button>`;
+        div.className = 'card class-card';
+        div.innerHTML = `
+            <h3>${c.name}</h3>
+            <p>${c.students ? c.students.length : 0} Students</p>
+            <button onclick="window.openClass(${i})">Manage Class 📂</button>
+        `;
         list.appendChild(div);
     });
 }
@@ -60,12 +66,14 @@ function renderStudents() {
         div.className = 'student-card';
         div.innerHTML = `
             <span class="rank-tag ${rank.class}">${rank.label}</span>
-            <div style="font-size: 2.5rem">☁️</div>
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">🌸</div>
             <strong>${s.name}</strong>
             <p>Score: ${s.points}</p>
-            <button onclick="window.modPoint(${i}, 1)">+</button>
-            <button class="btn-danger" onclick="window.modPoint(${i}, -1)">-</button>
-            <button style="display:block; width:100%; margin-top:10px; font-size:10px; background:#eee; color:#999" onclick="window.delStudent(${i})">Remove</button>
+            <div class="point-controls">
+                <button onclick="window.modPoint(${i}, 1)">+</button>
+                <button class="btn-danger" onclick="window.modPoint(${i}, -1)">-</button>
+            </div>
+            <button style="display:block; width:100%; margin-top:10px; font-size:10px; background:#f5f5f5; color:#aaa; box-shadow:none;" onclick="window.delStudent(${i})">Remove</button>
         `;
         list.appendChild(div);
     });
@@ -83,22 +91,24 @@ window.openClass = (i) => {
 
 window.modPoint = (sIdx, val) => {
     const student = classes[currentClassIndex].students[sIdx];
-    const oldRank = getRank(student.points, classes[currentClassIndex].maxPoints).label;
+    const oldRankLabel = getRank(student.points, classes[currentClassIndex].maxPoints).label;
     
     student.points = Math.max(0, student.points + val);
-    const newRank = getRank(student.points, classes[currentClassIndex].maxPoints).label;
+    const newRankLabel = getRank(student.points, classes[currentClassIndex].maxPoints).label;
 
-    if (newRank !== oldRank && val > 0) {
+    if (newRankLabel !== oldRankLabel && val > 0) {
         document.getElementById('snd-level').play();
-    } else {
+    } else if (val !== 0) {
         document.getElementById('snd-point').play();
     }
     syncData();
 };
 
 window.delStudent = (i) => {
-    classes[currentClassIndex].students.splice(i, 1);
-    syncData();
+    if(confirm("Remove this student?")) {
+        classes[currentClassIndex].students.splice(i, 1);
+        syncData();
+    }
 };
 
 // --- Event Listeners ---
@@ -133,12 +143,14 @@ document.getElementById('back-btn').onclick = () => {
 };
 
 document.getElementById('max-points-input').onchange = (e) => {
-    classes[currentClassIndex].maxPoints = parseInt(e.target.value);
+    let val = parseInt(e.target.value);
+    if(isNaN(val) || val < 1) val = 10; // Bảo vệ giá trị hợp lệ
+    classes[currentClassIndex].maxPoints = val;
     syncData();
 };
 
 document.getElementById('delete-class-btn').onclick = () => {
-    if(confirm("Delete this class?")) {
+    if(confirm("Delete this entire class? This cannot be undone!")) {
         classes.splice(currentClassIndex, 1);
         syncData();
         document.getElementById('back-btn').click();
