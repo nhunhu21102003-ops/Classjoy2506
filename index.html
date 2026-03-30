@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassJoy Pink Sidebar - Rank System</title>
+    <title>ClassJoy Pink Sidebar</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <button id="toggle-sidebar">☰</button>
+    <button id="toggle-sidebar" class="hidden">☰</button>
 
     <section id="auth-screen" class="auth-container">
         <div class="auth-box">
             <h1 class="main-title">ClassJoy 💖</h1>
-            <button id="google-login-btn" class="btn-google">Sign in with Google</button>
+            <p style="margin-bottom: 20px; color: #834055; font-weight: bold;">Teacher Entrance</p>
+            <button id="google-login-btn" class="btn-google">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/layout/google.svg" alt="G">
+                Sign in with Google
+            </button>
         </div>
     </section>
 
     <div id="app-layout" class="hidden">
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
+                <div class="user-avatar">🎀</div>
                 <div id="user-info" class="user-name">Welcome!</div>
             </div>
 
             <div class="sidebar-top-controls">
-                <div class="nav-label">CREATE NEW CLASS</div>
+                <div class="nav-label">CREATE NEW CLASS ✨</div>
                 <div class="add-class-mini">
-                    <input type="text" id="new-class-name" placeholder="Name...">
+                    <input type="text" id="new-class-name" placeholder="Class name...">
                     <button id="add-class-btn">+</button>
                 </div>
             </div>
@@ -49,13 +54,18 @@
 
             <section id="class-detail-screen" class="hidden">
                 <header class="detail-header">
-                    <h2 id="current-class-title">Class Name</h2>
-                    <button class="btn-danger" id="delete-class-btn">Delete Class</button>
+                    <h2 id="current-class-title" class="section-title">Class Name</h2>
+                    <button class="btn-danger" id="delete-class-btn">Delete Class </button>
                 </header>
+
+                <div class="settings-bar card-heavy">
+                    <span>Target Points: </span>
+                    <input type="number" id="max-points-input" value="10">
+                </div>
 
                 <div class="controls card-heavy">
                     <input type="text" id="new-student-name" placeholder="Student Name...">
-                    <button id="add-student-btn">Add Student</button>
+                    <button id="add-student-btn">Add Student </button>
                 </div>
 
                 <div id="student-list" class="grid"></div>
