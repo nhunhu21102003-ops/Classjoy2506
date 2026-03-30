@@ -19,7 +19,13 @@ const provider = new GoogleAuthProvider();
 
 let classes = [];
 let currentClassIndex = null;
-const animalIcons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐣', '🐧', '🦄', '🐝', '🦒'];
+
+function getRank(points) {
+    if (points >= 10) return { label: "🏆 MYTHIC", class: "rank-mythic" };
+    if (points >= 5) return { label: "💎 DIAMOND", class: "rank-diamond" };
+    if (points >= 3) return { label: "⭐ GOLD", class: "rank-gold" };
+    return { label: "🌱 ROOKIE", class: "rank-rookie" };
+}
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -39,18 +45,11 @@ const loadData = () => {
     onValue(ref(db, 'classes/'), (snapshot) => {
         classes = snapshot.val() || [];
         renderSidebar();
-        currentClassIndex !== null ? renderStudents() : renderDashboard();
+        if (currentClassIndex !== null) renderStudents(); else renderDashboard();
     });
 };
 
 const syncData = () => set(ref(db, 'classes/'), classes);
-
-function getRankInfo(points) {
-    if (points >= 10) return { label: "🏆 Mythic", class: "rank-3" };
-    if (points >= 5) return { label: "💎 Diamond", class: "rank-2" };
-    if (points >= 3) return { label: "⭐ Gold", class: "rank-1" };
-    return { label: "🌱 Rookie", class: "rank-0" };
-}
 
 function renderSidebar() {
     const sideList = document.getElementById('sidebar-class-list');
@@ -71,9 +70,12 @@ function renderDashboard() {
     list.innerHTML = '';
     classes.forEach((c, i) => {
         const div = document.createElement('div');
-        div.className = 'card-heavy';
-        div.style.cursor = 'pointer';
-        div.innerHTML = `<h3>${c.name}</h3><p>${c.students?.length || 0} Students</p>`;
+        div.className = 'class-card'; // Dùng class mới để ra hình vuông
+        div.innerHTML = `
+            <div style="font-size: 3rem;">🏫</div>
+            <h3>${c.name}</h3>
+            <p>${c.students?.length || 0} Students</p>
+        `;
         div.onclick = () => window.openClass(i);
         list.appendChild(div);
     });
@@ -88,73 +90,53 @@ function renderStudents() {
     document.getElementById('current-class-title').innerText = currentClass.name;
 
     currentClass.students?.forEach((s, i) => {
-        const rank = getRankInfo(s.points);
+        const rank = getRank(s.points);
         const div = document.createElement('div');
         div.className = 'student-card';
         div.innerHTML = `
             <span class="rank-badge ${rank.class}">${rank.label}</span>
-            <div class="animal-icon">${getAnimalIcon(s.name)}</div>
+            <div class="animal-icon">🐱</div>
             <br><strong>${s.name}</strong>
             <div class="point-controls">
                 <button class="btn-minus" onclick="window.modPoint(${i}, -1)">-</button>
                 <button class="btn-plus" onclick="window.modPoint(${i}, 1)">+</button>
             </div>
             <p style="font-weight:bold; color:var(--pink-hot)">Points: ${s.points}</p>
-            <button onclick="window.delStudent(${i})" style="background:none; color:#aaa; box-shadow:none; margin-top:10px; font-size:10px; border:none; cursor:pointer;">Remove</button>
         `;
         list.appendChild(div);
     });
 }
 
-const getAnimalIcon = (name) => {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return animalIcons[Math.abs(hash) % animalIcons.length];
-};
-
 window.openClass = (i) => { currentClassIndex = i; loadData(); };
 
 window.modPoint = (sIdx, val) => {
     const student = classes[currentClassIndex].students[sIdx];
-    const oldPoints = student.points;
+    const oldRank = getRank(student.points).label;
     student.points = Math.max(0, student.points + val);
-    
-    // Kiểm tra thăng bậc để phát âm thanh đặc biệt
-    if (val > 0 && 
-       ((oldPoints < 3 && student.points >= 3) || 
-        (oldPoints < 5 && student.points >= 5) || 
-        (oldPoints < 10 && student.points >= 10))) {
-        document.getElementById('snd-level').play();
-    } else {
-        document.getElementById('snd-point').play();
-    }
+    const newRank = getRank(student.points).label;
+
+    if (val > 0 && oldRank !== newRank) document.getElementById('snd-level').play();
+    else document.getElementById('snd-point').play();
+
     syncData();
 };
 
-window.delStudent = (i) => { if(confirm("Remove student?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
-
 document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, provider);
 document.getElementById('logout-btn').onclick = () => { currentClassIndex = null; signOut(auth); };
-document.getElementById('toggle-sidebar').onclick = () => {
-    document.getElementById('sidebar').classList.toggle('collapsed');
-};
+document.getElementById('toggle-sidebar').onclick = () => document.getElementById('sidebar').classList.toggle('collapsed');
 
 document.getElementById('add-class-btn').onclick = () => {
-    const nameInput = document.getElementById('new-class-name');
-    if(nameInput.value) { 
-        classes.push({name: nameInput.value, maxPoints: 10, students: []}); 
-        syncData(); 
-        nameInput.value=''; 
-    }
+    const name = document.getElementById('new-class-name').value;
+    if(name) { classes.push({name, students: []}); syncData(); document.getElementById('new-class-name').value=''; }
 };
 
 document.getElementById('add-student-btn').onclick = () => {
-    const nameInput = document.getElementById('new-student-name');
-    if(nameInput.value && currentClassIndex !== null) { 
+    const name = document.getElementById('new-student-name').value;
+    if(name && currentClassIndex !== null) {
         if(!classes[currentClassIndex].students) classes[currentClassIndex].students = [];
-        classes[currentClassIndex].students.push({name: nameInput.value, points: 0}); 
-        syncData(); 
-        nameInput.value=''; 
+        classes[currentClassIndex].students.push({name, points: 0});
+        syncData();
+        document.getElementById('new-student-name').value='';
     }
 };
 
