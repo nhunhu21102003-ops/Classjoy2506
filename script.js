@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// --- PASTE YOUR FIREBASE CONFIG HERE ---
 const firebaseConfig = {
   apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
   authDomain: "classjoy-1002f.firebaseapp.com",
@@ -10,30 +10,46 @@ const firebaseConfig = {
   messagingSenderId: "598580384018",
   appId: "1:598580384018:web:bd967c01cf077db61d23cb"
 };
-// ---------------------------------------
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 let classes = [];
 let currentClassIndex = null;
 
 const animalIcons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐣', '🐧', '🦄', '🐝', '🦒'];
 
-// Helper: Get consistent icon based on name
+// Firebase Auth State
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('dashboard-screen').classList.remove('hidden');
+        document.getElementById('user-info').innerText = `Teacher: ${user.displayName || 'User'}`;
+        loadData(user.uid);
+    } else {
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('dashboard-screen').classList.add('hidden');
+    }
+});
+
+// Load data specific to user or global
+const loadData = (uid) => {
+    onValue(ref(db, 'classes/'), (snapshot) => {
+        classes = snapshot.val() || [];
+        currentClassIndex !== null ? renderStudents() : renderClasses();
+    });
+};
+
+const syncData = () => set(ref(db, 'classes/'), classes);
+
+// Render logic (giữ nguyên từ bản trước)
 const getAnimalIcon = (name) => {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return animalIcons[Math.abs(hash) % animalIcons.length];
 };
-
-// Sync from Firebase
-onValue(ref(db, 'classes/'), (snapshot) => {
-    classes = snapshot.val() || [];
-    currentClassIndex !== null ? renderStudents() : renderClasses();
-});
-
-const syncData = () => set(ref(db, 'classes/'), classes);
 
 const getRank = (pts, max) => {
     if (pts >= max) return { label: '🌟 ELITE 🌟', class: 'rank-max' };
@@ -57,7 +73,6 @@ function renderStudents() {
     const list = document.getElementById('student-list');
     list.innerHTML = '';
     const currentClass = classes[currentClassIndex];
-    
     currentClass.students?.forEach((s, i) => {
         const rank = getRank(s.points, currentClass.maxPoints);
         const div = document.createElement('div');
@@ -80,7 +95,6 @@ function renderStudents() {
 // Global window functions
 window.openClass = (i) => {
     currentClassIndex = i;
-    document.getElementById('dashboard-screen').classList.remove('hidden');
     document.getElementById('dashboard-screen').classList.add('hidden');
     document.getElementById('class-detail-screen').classList.remove('hidden');
     document.getElementById('current-class-title').innerText = classes[i].name;
@@ -93,7 +107,6 @@ window.modPoint = (sIdx, val) => {
     const oldRank = getRank(student.points, classes[currentClassIndex].maxPoints).label;
     student.points = Math.max(0, student.points + val);
     const newRank = getRank(student.points, classes[currentClassIndex].maxPoints).label;
-
     if (newRank !== oldRank && val > 0) document.getElementById('snd-level').play();
     else if (val !== 0) document.getElementById('snd-point').play();
     syncData();
@@ -101,11 +114,18 @@ window.modPoint = (sIdx, val) => {
 
 window.delStudent = (i) => { if(confirm("Remove student?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
 
-// UI Listeners
+// Event Listeners
+document.getElementById('google-login-btn').onclick = () => {
+    signInWithPopup(auth, provider).catch(err => alert("Google Login Failed: " + err.message));
+};
+
 document.getElementById('login-btn').onclick = () => {
+    // Simple mock for manual login
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('dashboard-screen').classList.remove('hidden');
 };
+
+document.getElementById('logout-btn').onclick = () => signOut(auth);
 
 document.getElementById('add-class-btn').onclick = () => {
     const name = document.getElementById('new-class-name').value;
@@ -136,5 +156,3 @@ document.getElementById('max-points-input').onchange = (e) => {
 document.getElementById('delete-class-btn').onclick = () => {
     if(confirm("Delete entire class?")) { classes.splice(currentClassIndex, 1); syncData(); document.getElementById('back-btn').click(); }
 };
-
-document.getElementById('logout-btn').onclick = () => location.reload();
