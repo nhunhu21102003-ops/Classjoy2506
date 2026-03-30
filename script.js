@@ -22,19 +22,16 @@ let currentClassIndex = null;
 const animalIcons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐣', '🐧', '🦄', '🐝', '🦒'];
 
 onAuthStateChanged(auth, (user) => {
-    const authScreen = document.getElementById('auth-screen');
-    const appLayout = document.getElementById('app-layout');
-    const toggleBtn = document.getElementById('toggle-sidebar');
     if (user) {
-        authScreen.classList.add('hidden');
-        appLayout.classList.remove('hidden');
-        toggleBtn.classList.remove('hidden');
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-layout').classList.remove('hidden');
+        document.getElementById('toggle-sidebar').classList.remove('hidden');
         document.getElementById('user-info').innerText = `Teacher: ${user.displayName.split(' ')[0]} 🎀`;
         loadData();
     } else {
-        authScreen.classList.remove('hidden');
-        appLayout.classList.add('hidden');
-        toggleBtn.classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('app-layout').classList.add('hidden');
+        document.getElementById('toggle-sidebar').classList.add('hidden');
     }
 });
 
@@ -42,12 +39,18 @@ const loadData = () => {
     onValue(ref(db, 'classes/'), (snapshot) => {
         classes = snapshot.val() || [];
         renderSidebar();
-        if (currentClassIndex !== null) renderStudents();
-        else renderDashboard();
+        currentClassIndex !== null ? renderStudents() : renderDashboard();
     });
 };
 
 const syncData = () => set(ref(db, 'classes/'), classes);
+
+function getRankInfo(points) {
+    if (points >= 10) return { label: "🏆 Mythic", class: "rank-3" };
+    if (points >= 5) return { label: "💎 Diamond", class: "rank-2" };
+    if (points >= 3) return { label: "⭐ Gold", class: "rank-1" };
+    return { label: "🌱 Rookie", class: "rank-0" };
+}
 
 function renderSidebar() {
     const sideList = document.getElementById('sidebar-class-list');
@@ -83,20 +86,21 @@ function renderStudents() {
     list.innerHTML = '';
     const currentClass = classes[currentClassIndex];
     document.getElementById('current-class-title').innerText = currentClass.name;
-    document.getElementById('max-points-input').value = currentClass.maxPoints || 10;
 
     currentClass.students?.forEach((s, i) => {
+        const rank = getRankInfo(s.points);
         const div = document.createElement('div');
         div.className = 'student-card';
         div.innerHTML = `
+            <span class="rank-badge ${rank.class}">${rank.label}</span>
             <div class="animal-icon">${getAnimalIcon(s.name)}</div>
             <br><strong>${s.name}</strong>
-            <p>Score: ${s.points}</p>
             <div class="point-controls">
                 <button class="btn-minus" onclick="window.modPoint(${i}, -1)">-</button>
                 <button class="btn-plus" onclick="window.modPoint(${i}, 1)">+</button>
             </div>
-            <button onclick="window.delStudent(${i})" style="background:none; color:#aaa; box-shadow:none; margin-top:10px; font-size:10px;">Remove</button>
+            <p style="font-weight:bold; color:var(--pink-hot)">Points: ${s.points}</p>
+            <button onclick="window.delStudent(${i})" style="background:none; color:#aaa; box-shadow:none; margin-top:10px; font-size:10px; border:none; cursor:pointer;">Remove</button>
         `;
         list.appendChild(div);
     });
@@ -112,15 +116,23 @@ window.openClass = (i) => { currentClassIndex = i; loadData(); };
 
 window.modPoint = (sIdx, val) => {
     const student = classes[currentClassIndex].students[sIdx];
+    const oldPoints = student.points;
     student.points = Math.max(0, student.points + val);
-    const sound = (val > 0) ? 'snd-level' : 'snd-point';
-    document.getElementById(sound).play();
+    
+    // Kiểm tra thăng bậc để phát âm thanh đặc biệt
+    if (val > 0 && 
+       ((oldPoints < 3 && student.points >= 3) || 
+        (oldPoints < 5 && student.points >= 5) || 
+        (oldPoints < 10 && student.points >= 10))) {
+        document.getElementById('snd-level').play();
+    } else {
+        document.getElementById('snd-point').play();
+    }
     syncData();
 };
 
-window.delStudent = (i) => { if(confirm("Remove?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
+window.delStudent = (i) => { if(confirm("Remove student?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
 
-// Các sự kiện nút bấm
 document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, provider);
 document.getElementById('logout-btn').onclick = () => { currentClassIndex = null; signOut(auth); };
 document.getElementById('toggle-sidebar').onclick = () => {
@@ -143,15 +155,6 @@ document.getElementById('add-student-btn').onclick = () => {
         classes[currentClassIndex].students.push({name: nameInput.value, points: 0}); 
         syncData(); 
         nameInput.value=''; 
-    } else {
-        alert("Please select a class first!");
-    }
-};
-
-document.getElementById('max-points-input').onchange = (e) => {
-    if(currentClassIndex !== null) {
-        classes[currentClassIndex].maxPoints = parseInt(e.target.value);
-        syncData();
     }
 };
 
