@@ -10,48 +10,51 @@
 body, html { height: 100%; margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--bg); overflow-x: hidden; }
 .hidden { display: none !important; }
 
-/* Nút Toggle Sidebar */
 #toggle-sidebar {
     position: fixed; top: 15px; left: 15px; z-index: 100;
     background: var(--pink-hot); color: white; border: none;
-    padding: 10px 15px; border-radius: 10px; cursor: pointer;
+    padding: 10px 15px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 0px #b33652;
 }
 
-#app-layout { display: flex; height: 100vh; width: 100vw; transition: 0.3s; }
+#app-layout { display: flex; height: 100vh; width: 100vw; }
 
-/* Sidebar chỉnh sửa */
 .sidebar {
     width: 260px; background: var(--sidebar-bg); color: white;
     display: flex; flex-direction: column; padding: 20px;
-    transition: 0.3s; flex-shrink: 0;
+    transition: transform 0.3s ease; flex-shrink: 0;
 }
-.sidebar.collapsed { margin-left: -300px; }
+.sidebar.collapsed { transform: translateX(-100%); position: absolute; height: 100%; }
 
-.sidebar-header { text-align: center; padding-bottom: 20px; border-bottom: 2px dashed rgba(255,255,255,0.5); margin-bottom: 20px; }
-.sidebar-nav { flex: 1; overflow-y: auto; }
-.nav-item { background: rgba(255,255,255,0.2); margin-bottom: 10px; padding: 12px; border-radius: 15px; cursor: pointer; font-weight: 600; }
-.nav-item.active { background: white; color: var(--pink-hot); }
+.sidebar-header { text-align: center; padding-bottom: 15px; border-bottom: 2px dashed rgba(255,255,255,0.4); }
+.sidebar-top-controls { padding: 20px 0; border-bottom: 2px dashed rgba(255,255,255,0.4); }
+.nav-label { font-size: 0.75rem; font-weight: 800; margin-bottom: 10px; opacity: 0.9; }
 
-/* Footer Sidebar */
-.sidebar-footer { padding-top: 20px; border-top: 2px dashed rgba(255,255,255,0.5); }
-.add-class-mini { display: flex; gap: 5px; margin-bottom: 15px; }
-.add-class-mini input { width: 70%; padding: 8px; border-radius: 10px; border: none; font-size: 12px; }
-.add-class-mini button { width: 25%; padding: 8px; border-radius: 10px; }
+.add-class-mini { display: flex; gap: 5px; }
+.add-class-mini input { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 13px; }
+.add-class-mini button { width: 40px; padding: 8px; border-radius: 10px; background: var(--pink-dark); }
 
-.btn-logout-sidebar { width: 100%; background: var(--pink-dark); color: white; border: none; padding: 12px; border-radius: 15px; cursor: pointer; font-weight: 700; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding-top: 20px; }
+.nav-item { background: rgba(255,255,255,0.2); margin-bottom: 8px; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+.nav-item.active { background: white; color: var(--pink-hot); box-shadow: 0 4px 0px var(--shadow); }
 
-.main-content { flex: 1; padding: 60px 40px 40px 40px; overflow-y: auto; background: var(--bg); }
+.sidebar-footer { padding: 20px 0; display: flex; justify-content: center; }
+.btn-logout-sidebar { width: 80%; background: var(--pink-dark); color: white; border: none; padding: 10px; border-radius: 50px; cursor: pointer; font-weight: 700; }
+
+.main-content { flex: 1; padding: 60px 40px 40px 40px; overflow-y: auto; transition: 0.3s; }
 .card-heavy { background: white; padding: 20px; border-radius: 20px; border: 4px solid var(--sidebar-bg); margin-bottom: 25px; box-shadow: 0 8px 0px var(--shadow); }
 
-input { padding: 10px; border: 3px solid var(--bg); border-radius: 12px; font-family: inherit; font-weight: bold; outline: none; }
-button { padding: 10px 20px; border: none; border-radius: 50px; background: var(--pink-hot); color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0px #b33652; transition: 0.2s; }
-button:active { transform: translateY(3px); box-shadow: none; }
+/* Thăng bậc (Ranks) */
+.rank-badge { font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 50px; display: inline-block; margin-bottom: 10px; text-transform: uppercase; }
+.rank-0 { background: #eee; color: #777; }
+.rank-1 { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; } /* Cấp 1: 3 điểm */
+.rank-2 { background: #d1ecf1; color: #0c5460; border: 2px solid #bee5eb; } /* Cấp 2: 5 điểm */
+.rank-3 { background: var(--pink-hot); color: white; border: 2px solid white; animation: glow 1s infinite alternate; } /* Cấp 3: 10 điểm */
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-.student-card { background: white; padding: 20px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; }
-.animal-icon { font-size: 3rem; animation: bounce 2s infinite ease-in-out; display: inline-block; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes glow { from { box-shadow: 0 0 5px var(--pink-hot); } to { box-shadow: 0 0 15px var(--pink-hot); } }
 
-.point-controls { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
-.btn-plus { background: #ff1493 !important; width: 55px; font-size: 1.2rem; }
-.btn-minus { background: #ff4d4d !important; width: 55px; font-size: 1.2rem; }
+.student-card { background: white; padding: 25px 15px; border-radius: 25px; border: 4px solid var(--sidebar-bg); text-align: center; transition: 0.3s; }
+.animal-icon { font-size: 3.5rem; display: inline-block; margin-bottom: 10px; }
+
+.point-controls { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
+.btn-plus { background: #ff1493 !important; width: 60px; font-size: 1.5rem; }
+.btn-minus { background: #ff4d4d !important; width: 60px; font-size: 1.5rem; }
