@@ -9,18 +9,30 @@
 </head>
 <body>
     <div id="app">
-        <section id="auth-screen" class="container">
-            <h1 class="main-title">Teacher Login 🎀</h1>
-            <div class="card auth-card">
-                <input type="text" id="username" placeholder="Username">
-                <input type="password" id="password" placeholder="Password">
-                <button id="login-btn">Enter Classroom 💖</button>
+        <section id="auth-screen" class="auth-container">
+            <div class="auth-box card">
+                <h1 class="main-title">ClassJoy 🎀</h1>
+                <p style="margin-bottom: 20px; color: #a88">Welcome, Teacher!</p>
+                
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Username">
+                    <input type="password" id="password" placeholder="Password">
+                    <button id="login-btn" style="width: 100%; margin-top: 10px;">Login with Account</button>
+                </div>
+
+                <div class="divider"><span>OR</span></div>
+
+                <button id="google-login-btn" class="btn-google">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/layout/google.svg" alt="G">
+                    Sign in with Google
+                </button>
             </div>
         </section>
 
         <section id="dashboard-screen" class="container hidden">
             <header>
-                <h2>My Classes 🏫</h2>
+                <h2>My Classes </h2>
+                <div id="user-info" style="font-size: 0.8rem; margin-right: 10px;"></div>
                 <button class="btn-secondary" id="logout-btn">Logout 🚪</button>
             </header>
             
@@ -46,7 +58,7 @@
 
             <div class="controls card">
                 <input type="text" id="new-student-name" placeholder="Student Name">
-                <button id="add-student-btn">Add Student 👤</button>
+                <button id="add-student-btn">Add Student </button>
             </div>
 
             <div id="student-list" class="grid"></div>
