@@ -7,6 +7,7 @@
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,12 +15,27 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
 
-        // Cấu hình Firebase của bạn
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
+
+        const { useState, useEffect } = React;
+
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
             authDomain: "classjoy-1002f.firebaseapp.com",
@@ -30,21 +46,9 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        window.auth = getAuth(app);
-        window.db = getFirestore(app);
-        window.googleProvider = new GoogleAuthProvider();
-        window.fbMethods = { collection, doc, setDoc, onSnapshot, updateDoc, arrayUnion, deleteDoc, signInWithPopup, signOut, onAuthStateChanged };
-    </script>
-</head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { 
-            Plus, Trash2, LogOut, Star, Trophy, Crown, 
-            ChevronLeft, Users, X, Heart, Sparkles, LogIn 
-        } = lucide;
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         const ANIMAL_ICONS = [
             { id: 'rabbit', emoji: '🐰', color: 'bg-pink-100' },
@@ -56,6 +60,9 @@
         ];
 
         function App() {
+            // Lấy Icons từ thư viện Lucide
+            const { Plus, Trash2, LogOut, Trophy, ChevronLeft, Heart, LogIn } = lucide;
+
             const [user, setUser] = useState(null);
             const [loading, setLoading] = useState(true);
             const [classes, setClasses] = useState([]);
@@ -67,7 +74,7 @@
             const [newStudentName, setNewStudentName] = useState('');
 
             useEffect(() => {
-                const unsub = window.fbMethods.onAuthStateChanged(window.auth, (u) => {
+                const unsub = onAuthStateChanged(auth, (u) => {
                     setUser(u);
                     setLoading(false);
                 });
@@ -76,21 +83,21 @@
 
             useEffect(() => {
                 if (!user) return;
-                const q = window.fbMethods.collection(window.db, 'users', user.uid, 'classes');
-                const unsub = window.fbMethods.onSnapshot(q, (snapshot) => {
+                const q = collection(db, 'users', user.uid, 'classes');
+                const unsub = onSnapshot(q, (snapshot) => {
                     setClasses(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
                 });
                 return () => unsub();
             }, [user]);
 
-            const handleLogin = () => window.fbMethods.signInWithPopup(window.auth, window.googleProvider);
-            const handleLogout = () => { window.fbMethods.signOut(window.auth); setActiveClassId(null); };
+            const handleLogin = () => signInWithPopup(auth, googleProvider);
+            const handleLogout = () => { signOut(auth); setActiveClassId(null); };
 
             const handleCreateClass = async (e) => {
                 e.preventDefault();
                 if (!newClassName.trim()) return;
                 const id = Date.now().toString();
-                await window.fbMethods.setDoc(window.fbMethods.doc(window.db, 'users', user.uid, 'classes', id), {
+                await setDoc(doc(db, 'users', user.uid, 'classes', id), {
                     name: newClassName,
                     maxPoints: parseInt(newClassMax) || 10,
                     students: [],
@@ -104,8 +111,8 @@
                 if (!newStudentName.trim() || !activeClassId) return;
                 const icon = ANIMAL_ICONS[Math.floor(Math.random() * ANIMAL_ICONS.length)];
                 const student = { id: Date.now().toString(), name: newStudentName, points: 0, avatar: icon.emoji, avatarColor: icon.color };
-                await window.fbMethods.updateDoc(window.fbMethods.doc(window.db, 'users', user.uid, 'classes', activeClassId), {
-                    students: window.fbMethods.arrayUnion(student)
+                await updateDoc(doc(db, 'users', user.uid, 'classes', activeClassId), {
+                    students: arrayUnion(student)
                 });
                 setNewStudentName(''); setShowStudentModal(false);
             };
@@ -120,10 +127,10 @@
                     }
                     return s;
                 });
-                await window.fbMethods.updateDoc(window.fbMethods.doc(window.db, 'users', user.uid, 'classes', activeClassId), { students: updated });
+                await updateDoc(doc(db, 'users', user.uid, 'classes', activeClassId), { students: updated });
             };
 
-            if (loading) return <div className="min-h-screen flex items-center justify-center bg-pink-50 text-pink-500 font-black">LOADING...</div>;
+            if (loading) return <div className="min-h-screen flex items-center justify-center bg-pink-50 text-pink-500 font-black">ĐANG TẢI...</div>;
 
             if (!user) return (
                 <div className="min-h-screen bg-[#FFF5F7] flex items-center justify-center p-6 text-center">
@@ -132,7 +139,7 @@
                         <h1 className="text-5xl font-black text-pink-600 mb-2">JoyfulClass</h1>
                         <p className="text-pink-300 font-bold mb-10 uppercase tracking-widest text-[10px]">Quản lý lớp học hạnh phúc</p>
                         <button onClick={handleLogin} className="w-full bg-pink-400 hover:bg-pink-500 text-white font-black py-6 rounded-[32px] shadow-xl flex items-center justify-center gap-4 transition-all active:scale-95">
-                            <LogIn size={24} /> ĐĂNG NHẬP VỚI GOOGLE
+                            <LogIn size={24} /> ĐĂNG NHẬP GOOGLE
                         </button>
                     </div>
                 </div>
@@ -161,7 +168,13 @@
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                     {classes.map(cls => (
-                                        <div key={cls.id} onClick={() => setActiveClassId(cls.id)} className="bg-white p-10 rounded-[56px] shadow-xl hover:shadow-2xl cursor-pointer border-4 border-transparent hover:border-pink-200 transition-all">
+                                        <div key={cls.id} onClick={() => setActiveClassId(cls.id)} className="bg-white p-10 rounded-[56px] shadow-xl hover:shadow-2xl cursor-pointer border-4 border-transparent hover:border-pink-200 transition-all relative">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); if(confirm('Xóa lớp này?')) deleteDoc(doc(db, 'users', user.uid, 'classes', cls.id)); }}
+                                                className="absolute top-4 right-4 text-pink-100 hover:text-red-400"
+                                            >
+                                                <Trash2 size={20}/>
+                                            </button>
                                             <h3 className="text-3xl font-black text-pink-700">{cls.name}</h3>
                                             <div className="mt-4 flex gap-2">
                                                 <span className="px-3 py-1 bg-rose-50 text-rose-400 text-[10px] font-black rounded-full uppercase">{cls.students?.length || 0} HS</span>
@@ -205,7 +218,7 @@
                                     <input type="text" placeholder="Tên lớp" value={newClassName} onChange={e => setNewClassName(e.target.value)} className="w-full p-6 bg-pink-50 rounded-[24px] outline-none font-bold" />
                                     <input type="number" placeholder="Điểm mục tiêu" value={newClassMax} onChange={e => setNewClassMax(e.target.value)} className="w-full p-6 bg-pink-50 rounded-[24px] outline-none font-bold" />
                                     <button className="w-full bg-pink-400 text-white font-black py-6 rounded-[28px] text-xl">TẠO LỚP</button>
-                                    <button type="button" onClick={() => setShowClassModal(false)} className="w-full text-pink-300 font-bold">HỦY</button>
+                                    <button type="button" onClick={() => setShowClassModal(false)} className="w-full text-pink-300 font-bold mt-2">HỦY</button>
                                 </form>
                             </div>
                         </div>
@@ -218,7 +231,7 @@
                                 <form onSubmit={handleAddStudent} className="space-y-6">
                                     <input type="text" placeholder="Tên học sinh" value={newStudentName} onChange={e => setNewStudentName(e.target.value)} className="w-full p-6 bg-rose-50 rounded-[24px] outline-none font-bold" />
                                     <button className="w-full bg-rose-400 text-white font-black py-6 rounded-[28px] text-xl">THÊM VÀO LỚP</button>
-                                    <button type="button" onClick={() => setShowStudentModal(false)} className="w-full text-rose-300 font-bold">HỦY</button>
+                                    <button type="button" onClick={() => setShowStudentModal(false)} className="w-full text-rose-300 font-bold mt-2">HỦY</button>
                                 </form>
                             </div>
                         </div>
