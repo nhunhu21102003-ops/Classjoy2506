@@ -5,7 +5,6 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signO
 const firebaseConfig = {
   apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
   authDomain: "classjoy-1002f.firebaseapp.com",
-  // DÒNG NÀY SỬA LỖI REGION SINGAPORE CỦA BẠN:
   databaseURL: "https://classjoy-1002f-default-rtdb.asia-southeast1.firebasedatabase.app", 
   projectId: "classjoy-1002f",
   storageBucket: "classjoy-1002f.firebasestorage.app",
@@ -25,14 +24,17 @@ const animalIcons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '�
 onAuthStateChanged(auth, (user) => {
     const authScreen = document.getElementById('auth-screen');
     const appLayout = document.getElementById('app-layout');
+    const toggleBtn = document.getElementById('toggle-sidebar');
     if (user) {
         authScreen.classList.add('hidden');
         appLayout.classList.remove('hidden');
+        toggleBtn.classList.remove('hidden');
         document.getElementById('user-info').innerText = `Teacher: ${user.displayName.split(' ')[0]} 🎀`;
         loadData();
     } else {
         authScreen.classList.remove('hidden');
         appLayout.classList.add('hidden');
+        toggleBtn.classList.add('hidden');
     }
 });
 
@@ -40,7 +42,8 @@ const loadData = () => {
     onValue(ref(db, 'classes/'), (snapshot) => {
         classes = snapshot.val() || [];
         renderSidebar();
-        currentClassIndex !== null ? renderStudents() : renderDashboard();
+        if (currentClassIndex !== null) renderStudents();
+        else renderDashboard();
     });
 };
 
@@ -80,6 +83,7 @@ function renderStudents() {
     list.innerHTML = '';
     const currentClass = classes[currentClassIndex];
     document.getElementById('current-class-title').innerText = currentClass.name;
+    document.getElementById('max-points-input').value = currentClass.maxPoints || 10;
 
     currentClass.students?.forEach((s, i) => {
         const div = document.createElement('div');
@@ -104,7 +108,7 @@ const getAnimalIcon = (name) => {
     return animalIcons[Math.abs(hash) % animalIcons.length];
 };
 
-window.openClass = (i) => { currentClassIndex = i; renderSidebar(); renderStudents(); };
+window.openClass = (i) => { currentClassIndex = i; loadData(); };
 
 window.modPoint = (sIdx, val) => {
     const student = classes[currentClassIndex].students[sIdx];
@@ -116,22 +120,41 @@ window.modPoint = (sIdx, val) => {
 
 window.delStudent = (i) => { if(confirm("Remove?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
 
-// Gán sự kiện cho nút bấm
+// Các sự kiện nút bấm
 document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, provider);
 document.getElementById('logout-btn').onclick = () => { currentClassIndex = null; signOut(auth); };
-document.getElementById('add-class-btn').onclick = () => {
-    const name = document.getElementById('new-class-name').value;
-    if(name) { classes.push({name, maxPoints: 10, students: []}); syncData(); document.getElementById('new-class-name').value=''; }
+document.getElementById('toggle-sidebar').onclick = () => {
+    document.getElementById('sidebar').classList.toggle('collapsed');
 };
-document.getElementById('add-student-btn').onclick = () => {
-    const name = document.getElementById('new-student-name').value;
-    if(name) { 
-        if(!classes[currentClassIndex].students) classes[currentClassIndex].students = [];
-        classes[currentClassIndex].students.push({name, points: 0}); 
+
+document.getElementById('add-class-btn').onclick = () => {
+    const nameInput = document.getElementById('new-class-name');
+    if(nameInput.value) { 
+        classes.push({name: nameInput.value, maxPoints: 10, students: []}); 
         syncData(); 
-        document.getElementById('new-student-name').value=''; 
+        nameInput.value=''; 
     }
 };
+
+document.getElementById('add-student-btn').onclick = () => {
+    const nameInput = document.getElementById('new-student-name');
+    if(nameInput.value && currentClassIndex !== null) { 
+        if(!classes[currentClassIndex].students) classes[currentClassIndex].students = [];
+        classes[currentClassIndex].students.push({name: nameInput.value, points: 0}); 
+        syncData(); 
+        nameInput.value=''; 
+    } else {
+        alert("Please select a class first!");
+    }
+};
+
+document.getElementById('max-points-input').onchange = (e) => {
+    if(currentClassIndex !== null) {
+        classes[currentClassIndex].maxPoints = parseInt(e.target.value);
+        syncData();
+    }
+};
+
 document.getElementById('delete-class-btn').onclick = () => {
     if(confirm("Delete class?")) { classes.splice(currentClassIndex, 1); currentClassIndex = null; syncData(); }
 };
