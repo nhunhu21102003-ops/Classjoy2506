@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClassJoy Pink - Cute Student Manager</title>
+    <title>ClassJoy Hot Pink - Student Manager</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -11,13 +11,13 @@
     <div id="app">
         <section id="auth-screen" class="auth-container">
             <div class="auth-box card">
-                <h1 class="main-title">ClassJoy 🎀</h1>
-                <p style="margin-bottom: 20px; color: #a88">Welcome, Teacher!</p>
+                <h1 class="main-title">ClassJoy 💖</h1>
+                <p style="margin-bottom: 20px; color: #834055; font-weight: bold;">Teacher Entrance</p>
                 
                 <div class="input-group">
                     <input type="text" id="username" placeholder="Username">
                     <input type="password" id="password" placeholder="Password">
-                    <button id="login-btn" style="width: 100%; margin-top: 10px;">Login with Account</button>
+                    <button id="login-btn" style="width: 100%; margin-top: 10px;">Login 🎀</button>
                 </div>
 
                 <div class="divider"><span>OR</span></div>
@@ -31,13 +31,13 @@
 
         <section id="dashboard-screen" class="container hidden">
             <header>
-                <h2>My Classes </h2>
-                <div id="user-info" style="font-size: 0.8rem; margin-right: 10px;"></div>
-                <button class="btn-secondary" id="logout-btn">Logout 🚪</button>
+                <h2 class="section-title">My Classes </h2>
+                <div id="user-info" class="user-badge"></div>
+                <button class="btn-logout" id="logout-btn">Logout </button>
             </header>
             
-            <div class="controls card">
-                <input type="text" id="new-class-name" placeholder="Class Name (e.g. Grade 1A)">
+            <div class="controls card-heavy">
+                <input type="text" id="new-class-name" placeholder="Class Name...">
                 <button id="add-class-btn">+ Create Class</button>
             </div>
 
@@ -46,18 +46,18 @@
 
         <section id="class-detail-screen" class="container hidden">
             <header>
-                <button id="back-btn">← Back</button>
-                <h2 id="current-class-title">Class Name</h2>
-                <button class="btn-danger" id="delete-class-btn">Delete Class 🗑️</button>
+                <button id="back-btn" class="btn-back">← Back</button>
+                <h2 id="current-class-title" class="section-title">Class Name</h2>
+                <button class="btn-danger" id="delete-class-btn">Delete Class </button>
             </header>
 
-            <div class="settings-bar card">
-                <span>Max Points for Level Up: </span>
+            <div class="settings-bar card-heavy">
+                <span>Level Up Threshold: </span>
                 <input type="number" id="max-points-input" value="10">
             </div>
 
-            <div class="controls card">
-                <input type="text" id="new-student-name" placeholder="Student Name">
+            <div class="controls card-heavy">
+                <input type="text" id="new-student-name" placeholder="Student Name...">
                 <button id="add-student-btn">Add Student </button>
             </div>
 
