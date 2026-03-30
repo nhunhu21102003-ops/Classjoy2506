@@ -5,6 +5,8 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signO
 const firebaseConfig = {
   apiKey: "AIzaSyA_bCjtuPvQ2VvTQCMvaE2LZx-wGPIrsaM",
   authDomain: "classjoy-1002f.firebaseapp.com",
+  // DÒNG NÀY SỬA LỖI REGION SINGAPORE CỦA BẠN:
+  databaseURL: "https://classjoy-1002f-default-rtdb.asia-southeast1.firebasedatabase.app", 
   projectId: "classjoy-1002f",
   storageBucket: "classjoy-1002f.firebasestorage.app",
   messagingSenderId: "598580384018",
@@ -21,14 +23,16 @@ let currentClassIndex = null;
 const animalIcons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐣', '🐧', '🦄', '🐝', '🦒'];
 
 onAuthStateChanged(auth, (user) => {
+    const authScreen = document.getElementById('auth-screen');
+    const appLayout = document.getElementById('app-layout');
     if (user) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-layout').classList.remove('hidden');
-        document.getElementById('user-info').innerText = `Welcome, ${user.displayName.split(' ')[0]}! 🎀`;
+        authScreen.classList.add('hidden');
+        appLayout.classList.remove('hidden');
+        document.getElementById('user-info').innerText = `Teacher: ${user.displayName.split(' ')[0]} 🎀`;
         loadData();
     } else {
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('app-layout').classList.add('hidden');
+        authScreen.classList.remove('hidden');
+        appLayout.classList.add('hidden');
     }
 });
 
@@ -42,7 +46,6 @@ const loadData = () => {
 
 const syncData = () => set(ref(db, 'classes/'), classes);
 
-// Render danh sách lớp vào Sidebar
 function renderSidebar() {
     const sideList = document.getElementById('sidebar-class-list');
     sideList.innerHTML = '';
@@ -63,6 +66,7 @@ function renderDashboard() {
     classes.forEach((c, i) => {
         const div = document.createElement('div');
         div.className = 'card-heavy';
+        div.style.cursor = 'pointer';
         div.innerHTML = `<h3>${c.name}</h3><p>${c.students?.length || 0} Students</p>`;
         div.onclick = () => window.openClass(i);
         list.appendChild(div);
@@ -78,19 +82,17 @@ function renderStudents() {
     document.getElementById('current-class-title').innerText = currentClass.name;
 
     currentClass.students?.forEach((s, i) => {
-        const rank = getRank(s.points, currentClass.maxPoints);
         const div = document.createElement('div');
         div.className = 'student-card';
         div.innerHTML = `
-            <span class="rank-tag ${s.points >= currentClass.maxPoints ? 'rank-max' : ''}">${rank}</span>
             <div class="animal-icon">${getAnimalIcon(s.name)}</div>
             <br><strong>${s.name}</strong>
+            <p>Score: ${s.points}</p>
             <div class="point-controls">
                 <button class="btn-minus" onclick="window.modPoint(${i}, -1)">-</button>
                 <button class="btn-plus" onclick="window.modPoint(${i}, 1)">+</button>
             </div>
-            <p>Score: ${s.points}</p>
-            <button class="btn-remove" onclick="window.delStudent(${i})">x</button>
+            <button onclick="window.delStudent(${i})" style="background:none; color:#aaa; box-shadow:none; margin-top:10px; font-size:10px;">Remove</button>
         `;
         list.appendChild(div);
     });
@@ -102,29 +104,34 @@ const getAnimalIcon = (name) => {
     return animalIcons[Math.abs(hash) % animalIcons.length];
 };
 
-const getRank = (pts, max) => {
-    if (pts >= max) return '👑 ELITE';
-    if (pts >= 5) return '💎 ADVANCED';
-    return '🌱 BEGINNER';
-};
+window.openClass = (i) => { currentClassIndex = i; renderSidebar(); renderStudents(); };
 
-window.openClass = (i) => { currentClassIndex = i; loadData(); };
 window.modPoint = (sIdx, val) => {
     const student = classes[currentClassIndex].students[sIdx];
     student.points = Math.max(0, student.points + val);
-    if (val > 0 && student.points % 5 === 0) document.getElementById('snd-level').play();
-    else document.getElementById('snd-point').play();
+    const sound = (val > 0) ? 'snd-level' : 'snd-point';
+    document.getElementById(sound).play();
     syncData();
 };
-window.delStudent = (i) => { if(confirm("Delete?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
 
+window.delStudent = (i) => { if(confirm("Remove?")) { classes[currentClassIndex].students.splice(i, 1); syncData(); } };
+
+// Gán sự kiện cho nút bấm
 document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, provider);
-document.getElementById('logout-btn').onclick = () => signOut(auth);
+document.getElementById('logout-btn').onclick = () => { currentClassIndex = null; signOut(auth); };
 document.getElementById('add-class-btn').onclick = () => {
     const name = document.getElementById('new-class-name').value;
-    if(name) { classes.push({name, maxPoints: 10, students: []}); syncData(); }
+    if(name) { classes.push({name, maxPoints: 10, students: []}); syncData(); document.getElementById('new-class-name').value=''; }
 };
 document.getElementById('add-student-btn').onclick = () => {
     const name = document.getElementById('new-student-name').value;
-    if(name) { classes[currentClassIndex].students.push({name, points: 0}); syncData(); }
+    if(name) { 
+        if(!classes[currentClassIndex].students) classes[currentClassIndex].students = [];
+        classes[currentClassIndex].students.push({name, points: 0}); 
+        syncData(); 
+        document.getElementById('new-student-name').value=''; 
+    }
+};
+document.getElementById('delete-class-btn').onclick = () => {
+    if(confirm("Delete class?")) { classes.splice(currentClassIndex, 1); currentClassIndex = null; syncData(); }
 };
