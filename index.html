@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <button id="toggle-sidebar" class="hidden">☰</button>
+
     <section id="auth-screen" class="auth-container">
         <div class="auth-box">
             <h1 class="main-title">ClassJoy 💖</h1>
@@ -20,7 +22,7 @@
     </section>
 
     <div id="app-layout" class="hidden">
-        <aside class="sidebar">
+        <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <div class="user-avatar">🎀</div>
                 <div id="user-info" class="user-name">Welcome!</div>
@@ -31,16 +33,18 @@
                 <div id="sidebar-class-list"></div>
             </nav>
 
-            <button class="btn-logout-sidebar" id="logout-btn">Logout 🚪</button>
+            <div class="sidebar-footer">
+                <div class="add-class-mini">
+                    <input type="text" id="new-class-name" placeholder="New class...">
+                    <button id="add-class-btn">+</button>
+                </div>
+                <button class="btn-logout-sidebar" id="logout-btn">Logout 🚪</button>
+            </div>
         </aside>
 
         <main class="main-content">
             <section id="dashboard-screen">
                 <h2 class="section-title">Dashboard</h2>
-                <div class="controls card-heavy">
-                    <input type="text" id="new-class-name" placeholder="New Class Name...">
-                    <button id="add-class-btn">+ Create</button>
-                </div>
                 <div id="class-list" class="grid"></div>
             </section>
 
